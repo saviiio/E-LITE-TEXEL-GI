@@ -285,13 +285,14 @@ value.USE_WATER_TURBULENCE.2=Medium
 value.USE_WATER_TURBULENCE.3=High
 
 option.COLOR_SCHEME=§lColor scheme
-option.COLOR_SCHEME.comment=New Shoka: Reinterpretation of a classic (MakeUp). §b§lRealistic+: Realistic sky colors. LITE Legacy: LITE 3.3 colors. Vanilla: Vanilla colors. Cursed: Dark and scary colors. Realistic (Simple): Simple colors. Custom: Choose your colors in effects -> custom colors.
+option.COLOR_SCHEME.comment=New Shoka: Reinterpretation of a classic (MakeUp). §b§lRealistic+: Realistic sky colors. LITE Legacy: LITE 3.3 colors. Vanilla: Vanilla colors. Cursed: Dark and scary colors. Realistic (Simple): Simple colors. Custom: Choose your colors in effects -> custom colors. Realistic (Pollution): Realistic, but simulates pollution.
 value.COLOR_SCHEME.1=New Shoka
 value.COLOR_SCHEME.2=§b§lRealistic+
 value.COLOR_SCHEME.3=§6§lLegacy (LITE)
 value.COLOR_SCHEME.4=§f§lVanilla
 value.COLOR_SCHEME.5=§4§lCursed
 value.COLOR_SCHEME.6=§lRealistic (Simple)
+value.COLOR_SCHEME.7=§lRealistic (Pol)
 value.COLOR_SCHEME.99=Custom
 
 option.LIGHT_SUNSET_COLOR_R=Sunset light R

@@ -249,13 +249,14 @@ value.USE_WATER_TURBULENCE.2=Média
 value.USE_WATER_TURBULENCE.3=Alta
 
 option.COLOR_SCHEME=§lEsquema de cores
-option.COLOR_SCHEME.comment=New Shoka: Reinterpretação de um clássico (MakeUp). Shoka: O clássico (MakeUp). §b§lRealístico+: Cores de céu realistas. LITE Legado: Cores do LITE 3.3. Vanilla: Cores originais. Sombrio: Cores assustadoras. Realístico (Simples): Cores simples. Customizado: Escolha suas cores em efeitos -> cores customizadas.
+option.COLOR_SCHEME.comment=New Shoka: Reinterpretação de um clássico (MakeUp). Shoka: O clássico (MakeUp). §b§lRealístico+: Cores de céu realistas. LITE Legado: Cores do LITE 3.3. Vanilla: Cores originais. Sombrio: Cores assustadoras. Realístico (Simples): Cores simples. Customizado: Escolha suas cores em efeitos -> cores customizadas. Realístico (Poluição): Simula poluição no ar.
 value.COLOR_SCHEME.1=New Shoka
 value.COLOR_SCHEME.2=§b§lRealístico+
 value.COLOR_SCHEME.3=§6§lLITE Legado
 value.COLOR_SCHEME.4=§f§lVanilla
 value.COLOR_SCHEME.5=§4§lSombrio
 value.COLOR_SCHEME.6=§lRealístico (Simples)
+value.COLOR_SCHEME.7=§lRealístico (Pol)
 value.COLOR_SCHEME.99=Customizado
 
 option.LIGHT_SUNSET_COLOR_R=Luz do Pôr do sol R

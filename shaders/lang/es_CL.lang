@@ -231,12 +231,13 @@ value.USE_WATER_TURBULENCE.2=Media
 value.USE_WATER_TURBULENCE.3=Alta
 
 option.COLOR_SCHEME=§lEsquema de color
-option.COLOR_SCHEME.comment=Realistic+: Colores realistas. Legado: Colores de LITE 3.3. Vanilla: Colores originales. Cursed: Oscuro y aterrador. Realista (Simple): Colores simples. Custom: Elige tus propios colores.
+option.COLOR_SCHEME.comment=Realistic+: Colores realistas. Legado: Colores de LITE 3.3. Vanilla: Colores originales. Cursed: Oscuro y aterrador. Realista (Simple): Colores simples. Custom: Elige tus propios colores. Realista (Polución): Simula la polución del aire.
 value.COLOR_SCHEME.2=§b§lRealista+
 value.COLOR_SCHEME.3=§6§lLegado (LITE)
 value.COLOR_SCHEME.4=§f§lVanilla
 value.COLOR_SCHEME.5=§4§lCursed
 value.COLOR_SCHEME.6=§lRealista (Simple)
+value.COLOR_SCHEME.7=§lRealista (Pol)
 value.COLOR_SCHEME.99=Personalizado
 
 option.LIGHT_SUNSET_COLOR_R=Luz atardecer R
