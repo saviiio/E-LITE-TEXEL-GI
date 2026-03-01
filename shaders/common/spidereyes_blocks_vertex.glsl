@@ -15,11 +15,11 @@ varying vec2 texcoord;
 
 /* Utility functions */
 
-#if AA_TYPE > 0
+#if AA_TYPE > 1
     #include "/src/taa_offset.glsl"
 #endif
 
-#include "/lib/downscale.glsl"
+//#include "/lib/downscale.glsl"
  
 // MAIN FUNCTION ------------------
 
@@ -27,5 +27,5 @@ void main() {
     texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 
     #include "/src/position_vertex.glsl"
-    resize_vertex(gl_Position);
+    //resize_vertex(gl_Position);
 }

@@ -8,10 +8,10 @@
 noisetex - Water normals
 colortex0 - Unused
 colortex1 - Antialiasing auxiliar
-colortex2 - Unused
+colortex2 - Bloom auxiliar
 colortex3 - TAA Averages history
-gaux1 - Screen-Space-Reflection / Bloom auxiliar
-gaux2 - Clouds texture natural and vanilla
+gaux1 - Screen-Space-Reflection
+gaux2 - Clouds texture: natural and vanilla
 gaux3 - Exposure auxiliar
 gaux4 - Fog auxiliar
 
@@ -129,10 +129,12 @@ uniform sampler2D colortex3;
 #endif
 
 uniform sampler2D gaux3;
+uniform sampler2D gaux1;
 uniform sampler2D colortex1;
 uniform float viewWidth;
 uniform float viewHeight;
 uniform int frameCounter;
+uniform float frameTimeCounter;
 uniform int isEyeInWater;
 uniform float day_moment;
 uniform float day_mixer;
@@ -176,7 +178,10 @@ varying float exposure;
 #endif
 
 #define FRAGMENT
-#include "/lib/downscale.glsl"
+//#include "/lib/downscale.glsl"
+
+#include "/lib/textRender/textRender.glsl"
+
 
 void main() {
     vec2 pixelUV = texcoord;
@@ -187,52 +192,56 @@ void main() {
 
     #ifdef CHROMA_ABER
         vec3 block_color = color_aberration();
+        #if defined FXAA && !defined PS1_LIKE
+            block_color = fxaa311(block_color, 6, pixelUV);
+        #endif
     #else
        vec3 block_color = texture2DLod(colortex1, pixelUV, 0.0).rgb;
-
-       #if AA_TYPE == 3 && !defined FSR && !defined PS1_LIKE
-            #ifdef FXAA
-               block_color = fxaa311(block_color, 3, pixelUV);
-            #endif
-
-            block_color = sharpen(colortex1, block_color, pixelUV);
-        #elif AA_TYPE == 3 && defined FSR
-            /* FSR UPSCALE RENDER STAGES:
-            1. Vertices are "smashed" on left inferior quadrant based on RENDER_SCALE.
-            2. Pixels out of that quadrant are discarded, improving performance.
-            3. Anti-ghost TAA is aplied on composite2, and result will be sent to composite3.
-            4. Low-Resolution image will be upscaled with AMD FSR to fill screen on composite3 and image is sent to final.
-            5. FXAA is aplied.
-            6. Unsharp-Mask is aplied.
-            7. Image is sent to post effects (saturation, constrast, etc.) then, to screen.            
-            */
-            #if defined FXAA
-                block_color = fxaa311(block_color, 5, pixelUV);
-            #endif
-            
-            block_color = sharpen_cas(colortex1, block_color, pixelUV, RENDER_SCALE, SHARP_FORCE / RENDER_SCALE);
+        #if defined FXAA && !defined PS1_LIKE
+            block_color = fxaa311(block_color, 6, pixelUV);
         #endif
+
+       #if AA_TYPE == 3 && !defined PS1_LIKE
+            block_color = sharpen(colortex1, block_color, pixelUV);
+        #endif   
     #endif
 
-    // Dark areas dessaturation and blueness.
+    // Fake Purkinje shift
     if (isEyeInWater == 1) {
         float luma_factor = luma(block_color);
         float shadow_desaturation = smoothstep(0.01, 0.455, luma_factor);
         block_color = mix(block_color, block_color * vec3(0.8, 1.3, 1.6), shadow_desaturation);
     } else {
         float luma_factor = luma(block_color);
-        float shadow_desaturation = smoothstep(0.01, 0.175, luma_factor);
-        block_color = mix(saturate(block_color, clamp(luma_factor + 0.5, 0.7, 1.0)) * vec3(0.9, 0.95, 1.1), block_color, shadow_desaturation);
+
+        float shadow_desaturation = smoothstep(0.02, 0.25, luma_factor);
+        vec3 shadow_tint = vec3(0.9, 0.94, 1.0);
+
+        block_color = mix(saturate(block_color, 0.75) * shadow_tint, block_color, shadow_desaturation);
     } // Water overlay
 
     #if defined SIMPLE_AUTOEXP && COLOR_SCHEME != 11
-        float exposure_final = day_blend_float(1.5, 0.85, 2.25);
-    #elif COLOR_SCHEME == 11 && defined SIMPLE_AUTOEXP
+        float exposure_final = day_blend_float(1.5, 0.85, 3.0);
+    #elif COLOR_SCHEME == 4 && defined SIMPLE_AUTOEXP
         float exposure_final = day_blend_float(0.75, 0.75, 2.0);
-    #elif COLOR_SCHEME == 11 && !defined SIMPLE_AUTOEXP
+    #elif COLOR_SCHEME == 4 && !defined SIMPLE_AUTOEXP
         float exposure_final = exposure * day_blend_float(0.8, 1.0, 1.0);
     #else
-        float exposure_final = exposure;
+        // Dynamic exposure curve.
+        float start = 1.0;
+        float end   = 2.0;
+        float minPow = 0.8;
+
+        float releaseStart = 2.25;
+        float releaseEnd   = 2.75;
+
+        float tCompress = smoothstep(start, end, exposure);
+        float tRelease = smoothstep(releaseStart, releaseEnd, exposure);
+
+        float t = tCompress * (1.0 - tRelease);
+        float dynamicPow = mix(1.0, minPow, t);
+
+        float exposure_final = pow(exposure, dynamicPow);
     #endif
 
     block_color *= vec3(RED, GREEN, BLUE) * vec3(exposure_final * EXPOSURE) * BRIGHTNESS; // Color balance, Exposure, Brightness. 
@@ -240,20 +249,35 @@ void main() {
     block_color = saturate(block_color.rgb, SATURATION); // Saturation
     block_color = vibrance(block_color.rgb, VIBRANCE); // Vibrance
     block_color = pow(block_color.rgb, vec3(1 / GAMMA)); // Gamma
-    
+
+    #ifdef TITLE
+        float lifeSpan = 5.5;
+        float textOpacity = 1.0 - smoothstep(4.0, lifeSpan, frameTimeCounter);
+
+        float mainScale = 6.0;
+        int mainTotalWidth = 96; // 16 chars * 6px
+
+        ivec2 fragPosMain = ivec2(gl_FragCoord.xy / mainScale);
+        int centerX = int((viewWidth / mainScale) * 0.5);
+        ivec2 textPosMain = ivec2(centerX - (mainTotalWidth / 2), int((viewHeight * 0.825 + 50) / mainScale));
+        #include "/src/textRender/splashScreen.glsl"
+    #endif
+
     #if TONEMAPPING == 0
         block_color = custom_sigmoid_alt(block_color);
     #elif TONEMAPPING == 1
         #ifdef HDR
-        block_color = Lottes(block_color, 1.75);
+            block_color = Lottes(block_color, 1.75);
         #else
-        block_color = Lottes(block_color, 1.3);
+            block_color = Lottes(block_color, 1.3);
         #endif
     #elif TONEMAPPING == 2
         block_color = ACESFilm(block_color, 2.6);
     #elif TONEMAPPING == 3
         block_color = Lottes(block_color, 0.1);
-    #endif
+    #elif TONEMAPPING == 4
+        block_color = uchimura_tm(block_color);
+    #endif    
 
     #ifdef VIGNETTE
         block_color *= vignette(texcoord); // Vignette

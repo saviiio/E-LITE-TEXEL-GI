@@ -58,6 +58,7 @@ varying vec2 texcoord;
 varying vec2 lmcoord;
 varying vec4 tint_color;
 varying float fog_adj;
+varying float near_fog;
 varying vec3 water_normal;
 varying float block_type;
 varying vec4 worldposition;
@@ -77,6 +78,12 @@ varying vec3 pure_hi_sky_color;
 varying vec3 pure_mid_sky_color;
 varying vec3 pure_low_sky_color;
 
+#if defined SHADOW_CASTING && SHADOW_LOCK > 0 && !defined NETHER
+    varying vec3 vWorldPos;
+    varying vec3 vNormal;
+    varying vec3 vBias;
+#endif
+
 #if defined SHADOW_CASTING && !defined NETHER
     varying vec3 shadow_pos;
     varying float shadow_diffuse;
@@ -87,6 +94,8 @@ varying vec3 pure_low_sky_color;
     varying vec3 cloud_color;
     varying vec3 dark_cloud_color;
 #endif
+
+varying float sunInfluence;
 
 attribute vec4 mc_Entity;
 attribute vec4 at_tangent;
@@ -110,7 +119,7 @@ attribute vec4 at_tangent;
 #define FOG_BIOME
 #define PREPARE_SHADER
 #include "/lib/biome_sky.glsl"
-#include "/lib/downscale.glsl"
+//#include "/lib/downscale.glsl"
 
 // MAIN FUNCTION ------------------
 
@@ -120,7 +129,7 @@ void main() {
     #include "/src/basiccoords_vertex.glsl"
     #include "/src/position_vertex_water.glsl"
     
-    resize_vertex(gl_Position);
+    //resize_vertex(gl_Position);
     
     // Sky color calculation
     #include "/src/hi_sky.glsl"
@@ -149,6 +158,7 @@ void main() {
     
     up_vec = normalize(gbufferModelView[1].xyz);
 
+    vec3 dirToView = normalize(sub_position.xyz);
     #include "/src/fog_vertex.glsl"
 
     #if defined SHADOW_CASTING && !defined NETHER
@@ -157,5 +167,10 @@ void main() {
 
     #if (V_CLOUDS > 0 && !defined UNKNOWN_DIM) && !defined NO_CLOUDY_SKY
         #include "/lib/volumetric_clouds_vertex.glsl"
+    #endif
+
+    #if defined SHADOW_CASTING && SHADOW_LOCK > 0 && !defined NETHER
+        vNormal = shadow_world_normal;
+        vBias = bias;
     #endif
 }

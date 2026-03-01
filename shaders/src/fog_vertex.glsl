@@ -1,46 +1,47 @@
 #if !defined THE_END && !defined NETHER
+    float invFogAdjust = 1.0 / FOG_ADJUST;
 
-    // Fog intensity calculation
+    float rainMod = mix(1.0, 1.5, rainStrength);
     float fog_density_coeff = day_blend_float_lgcy(
         FOG_SUNSET,
         FOG_DAY,
-        mix(FOG_NIGHT, FOG_NIGHT * 1.5, rainStrength)
+        FOG_NIGHT * rainMod
     ) * FOG_ADJUST;
 
-    float fog_intensity_coeff = max(eye_bright_smooth.y * 0.004166666666666667, visible_sky);
+    float fog_intensity_coeff = 1.0;
 
-    float fog_density_coeff2 = day_blend_float_lgcy(
-        FOG_SUNSET * 1.25,
-        FOG_DAY,
-        FOG_NIGHT * 1.5
-    ) * FOG_ADJUST;
 
     #ifdef DISTANT_HORIZONS
-        #if COLOR_SCHEME == 12
-        fog_adj = pow(
-            clamp(gl_FogFragCoord / dhRenderDistance, 0.0, 1.0) * fog_intensity_coeff,
-            mix(fog_density_coeff * 0.1, 0.8, rainStrength)
-        );
-        #else
-        fog_adj = pow(
-            clamp(gl_FogFragCoord / dhRenderDistance, 0.0, 1.0) * fog_intensity_coeff,
-            clamp(mix(fog_density_coeff2 * biome_fog * 0.3, fog_density_coeff2 * 0.2 * biome_fog, rainStrength), 0.6, 100.0)
-        );
-        #endif
+        float invDist = 1.0 / dhRenderDistance;
     #else
-        #if COLOR_SCHEME == 12
-        fog_adj = pow(
-            clamp(gl_FogFragCoord / far, 0.0, 1.0) * fog_intensity_coeff,
-            mix(fog_density_coeff * 0.1, 0.8, rainStrength)
-        );
-        #else
-        fog_adj = pow(
-            clamp(gl_FogFragCoord / far, 0.0, 1.0) * fog_intensity_coeff,
-            mix(fog_density_coeff * biome_fog, fog_density_coeff * biome_fog * 0.2, rainStrength)
-        );
-        #endif
+        float invDist = 1.0 / far;
     #endif
+    float dist_ratio = gl_FogFragCoord * invDist;
 
+    vec3 dirToSun  = sunPosition * 0.01; 
+
+    float sunAngle = smoothstep(-0.8, 1.0, dot(dirToSun, dirToView));
+    sunInfluence = sunAngle * sunAngle * sunAngle; 
+
+    #ifdef NEAR_FOG
+        float sunDayFactor = day_blend_float(1.0, 0.1, 0.0);
+
+        #ifdef DISTANT_HORIZONS
+            float dynamic_density = 0.002 + (0.001 * sunInfluence * sunDayFactor);
+        #else
+            float dynamic_density = 0.004 + (0.005 * sunInfluence * sunDayFactor);
+        #endif
+
+        float dist_adj = (gl_FogFragCoord - (far / 7));
+        near_fog = clamp(1.0 - exp(-dist_adj * dynamic_density * invFogAdjust), 0.0, 1.0);
+        float horizon_exp = mix(fog_density_coeff * biome_fog, fog_density_coeff * biome_fog * 0.2, rainStrength);
+        float horizon_fog = pow(clamp(dist_ratio * fog_intensity_coeff, 0.0, 1.0), horizon_exp);
+
+        fog_adj = max(near_fog, horizon_fog);
+    #else
+        float horizon_exp = mix(fog_density_coeff * biome_fog, fog_density_coeff * biome_fog * 0.2, rainStrength);
+        fog_adj = pow(clamp(dist_ratio * fog_intensity_coeff, 0.0, 1.0), horizon_exp);
+    #endif
 #else
     #if defined NETHER
         #if NETHER_FOG_DISTANCE == 1
@@ -49,7 +50,7 @@
             #if defined DISTANT_HORIZONS
                 float sight = dhRenderDistance;
             #else
-                float sight = clamp(NETHER_SIGHT * (FOG_ADJUST * 0.5), 0.0, far * 1.5);
+                float sight = clamp(NETHER_SIGHT * (FOG_ADJUST * 0.5), 0.0, far * 0.5);
             #endif
         #endif
     #else

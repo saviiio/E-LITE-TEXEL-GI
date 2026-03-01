@@ -2,17 +2,17 @@
     vec3 low_sky_color_rgb = fogColor;
     low_sky_color = rgb_to_xyz(low_sky_color_rgb);
 #else
-    #if COLOR_SCHEME == 8
+    #if COLOR_SCHEME == 2
     vec3 low_sky_color_rgb = day_blend(
-            HORIZON_SUNSET_COLOR * day_blend(vec3(1.0), vec3(1.0, 1.5, 1.0), vec3(1.75)),
+            HORIZON_SUNSET_COLOR * day_blend(vec3(1.0), vec3(1.0, 1.5, 1.0), vec3(1.75, 1.5, 1.0)),
             HORIZON_DAY_COLOR,
-            saturate(HORIZON_NIGHT_COLOR, 0.25)
+            HORIZON_NIGHT_COLOR
         );
 
         low_sky_color_rgb = mix(
             low_sky_color_rgb,
-            HORIZON_SKY_RAIN_COLOR * luma(low_sky_color_rgb),
-            (rainStrength - 0.05)
+            HORIZON_SKY_RAIN_COLOR * luma(low_sky_color_rgb) * day_blend_float(0.5, 0.5, 1.0),
+            (rainStrength)
         );
 
         low_sky_color = rgb_to_xyz(low_sky_color_rgb);
@@ -23,7 +23,7 @@
             HORIZON_NIGHT_COLOR
         );
 
-        #if COLOR_SCHEME == 11
+        #if COLOR_SCHEME == 4
             low_sky_color_rgb = mix(
                 low_sky_color_rgb,
                 HORIZON_SKY_RAIN_COLOR * luma(low_sky_color_rgb) * 3.333,

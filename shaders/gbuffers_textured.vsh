@@ -1,5 +1,5 @@
 #version 120
-/* MakeUp - LITE shaders 4.9 - gbuffers_textured.vsh
+/* MakeUp - E-LITE shaders 5 - gbuffers_textured.vsh
 Render: Particles
 
 Javier Garduño - GNU Lesser General Public License v3.0

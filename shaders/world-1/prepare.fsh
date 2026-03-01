@@ -1,5 +1,5 @@
 #version 120
-/* MakeUp - LITE shaders 4.9 - prepare.fsh
+/* MakeUp - E-LITE shaders 5 - prepare.fsh
 Render: Sky
 
 Javier Garduño - GNU Lesser General Public License v3.0

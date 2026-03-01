@@ -1,14 +1,14 @@
-/* __   ______________
-  / /  /  _/_  __/ __/
- / /___/ /  / / / _/
-/____/___/ /_/ /___/
-
-LITE shaders 4.9 - emissive_materials.glsl #include "/lib/emissive_materials.glsl"
+/* ____    __   ______________
+  / ______/ /  /  _/_  __/ __/
+ / _//___/ /___/ /  / / / _/  
+/___/   /____/___/ /_/ /___/
+                                    
+E-LITE shaders 5 - emissive_materials.glsl #include "/lib/emissive_materials.glsl"
 Emissive properties for ores, some materials, particles and entities. - Propriedades emissivas para minérios, alguns materiais, partículas e entidades. */
 
-vec3 emmisive_color = vec3(1.0);
+vec3 emissive_color = vec3(1.0);
 
-#if (defined EMMISIVE_ORE || defined EMMISIVE_MATERIAL) && defined GBUFFER_TERRAIN
+#if (defined EMISSIVE_ORE || defined EMISSIVE_MATERIAL) && defined GBUFFER_TERRAIN
     float correct_light = 1.0;
     float correct_light_ore = 1.0;  
     vec3 color = pure_block_color.rgb;
@@ -32,7 +32,7 @@ vec3 emmisive_color = vec3(1.0);
         saturation = (max_color - min_color) / (max_color + 0.0001);
 
 
-    #if defined EMMISIVE_ORE && defined GBUFFER_TERRAIN
+    #if defined EMISSIVE_ORE && defined GBUFFER_TERRAIN
         float factor_gold = step(1.0, float(ore_type)) * step(float(ore_type), 1.0);
         float factor_diamond = step(2.0, float(ore_type)) * step(float(ore_type), 2.0);
         float factor_iron = step(3.0, float(ore_type)) * step(float(ore_type), 3.0);
@@ -44,10 +44,10 @@ vec3 emmisive_color = vec3(1.0);
         
         // GOLD (ore_type == 1)
         vec3 target_color_gold = vec3(1.0, 1.0, 0.0);
-        float match_cond_1_gold = step(dot(color - target_color_gold, color - target_color_gold), 1.0) * step(0.1, saturation) * step(0.31, luminance);
+        float match_cond_1_gold = step(dot(color - target_color_gold, color - target_color_gold), 1.0) * step(0.1, saturation) * step(0.34, luminance);
         float match_cond_2_gold = float(all(greaterThan(color, vec3(0.9))));
         float gold_match = clamp(match_cond_1_gold + match_cond_2_gold, 0.0, 1.0);
-        emmisive_color = mix(emmisive_color, emmisive_color * 8.0 * luma_color * vec3(1.0, 0.66, 0.66) * correct_light_ore, gold_match * factor_gold);
+        emissive_color = mix(emissive_color, emissive_color * 8.0 * luma_color * vec3(1.0, 0.66, 0.66) * correct_light_ore, gold_match * factor_gold);
 
         // DIAMOND (ore_type == 2)
         vec3 target_color_dark_diamond = vec3(0.0, 1.0, 1.0);
@@ -55,12 +55,12 @@ vec3 emmisive_color = vec3(1.0);
         float match_cond_1_diamond = step(dot(color - target_color_dark_diamond, color - target_color_dark_diamond), 0.49);
         float match_cond_2_diamond = step(dot(color - target_color_light_diamond, color - target_color_light_diamond), 0.09);
         float diamond_match = clamp(match_cond_1_diamond + match_cond_2_diamond, 0.0, 1.0);
-        emmisive_color = mix(emmisive_color, emmisive_color * 7.5 * luma(color) * correct_light_ore, diamond_match * factor_diamond);
+        emissive_color = mix(emissive_color, emissive_color * 7.5 * luma(color) * correct_light_ore, diamond_match * factor_diamond);
 
         // IRON (ore_type == 3)
         vec3 target_color_iron = vec3(0.816, 0.667, 0.557);
         float iron_match = step(dot(color - target_color_iron, color - target_color_iron), 1.0) * step(0.1, saturation) * step(0.2, luminance);
-        emmisive_color = mix(emmisive_color, emmisive_color * 10.0 * luma(color) * vec3(1.0, 0.6, 0.5) * correct_light_ore, iron_match * factor_iron);
+        emissive_color = mix(emissive_color, emissive_color * 10.0 * luma(color) * vec3(1.0, 0.6, 0.5) * correct_light_ore, iron_match * factor_iron);
 
         // EMERALD (ore_type == 4)
         vec3 target_color_dark_emerald = vec3(0.0, 0.4, 0.0);
@@ -69,7 +69,7 @@ vec3 emmisive_color = vec3(1.0);
         float match_cond_2_emerald = step(dot(color - target_color_light_emerald, color - target_color_light_emerald), 0.49);
         float emerald_match = clamp(match_cond_1_emerald + match_cond_2_emerald, 0.0, 1.0);
         emerald_match *= step(0.14, saturation);
-        emmisive_color = mix(emmisive_color, emmisive_color * 10.0 * luma_color * vec3(0.25, 0.6, 0.2) * correct_light_ore, emerald_match * factor_emerald);
+        emissive_color = mix(emissive_color, emissive_color * 10.0 * luma_color * vec3(0.25, 0.6, 0.2) * correct_light_ore, emerald_match * factor_emerald);
 
         // REDSTONE (ore_type == 5)
         vec3 target_color_dark_redstone = vec3(1.0, 0.0, 0.0);
@@ -78,7 +78,7 @@ vec3 emmisive_color = vec3(1.0);
         float match_cond_2_redstone = step(dot(color - target_color_light_redstone, color - target_color_light_redstone), 0.49);
         float redstone_match = clamp(match_cond_1_redstone + match_cond_2_redstone, 0.0, 1.0);
         redstone_match *= step(0.35, saturation) * step(0.01, luminance);
-        emmisive_color = mix(emmisive_color, emmisive_color * 15.0 * color * correct_light_ore, redstone_match * factor_redstone);
+        emissive_color = mix(emissive_color, emissive_color * 10.0 * vec3(1.0, 0.5, 0.5) * color * correct_light_ore, redstone_match * factor_redstone);
 
         // QUARTZ (ore_type == 6)
         vec3 target_color_dark_quartz = vec3(0.443, 0.325, 0.224);
@@ -87,12 +87,12 @@ vec3 emmisive_color = vec3(1.0);
         float match_cond_2_quartz = step(dot(color - target_color_light_quartz, color - target_color_light_quartz), 0.5625);
         float quartz_match = clamp(match_cond_1_quartz + match_cond_2_quartz, 0.0, 1.0);
         quartz_match *= step(0.45, luminance);
-        emmisive_color = mix(emmisive_color, emmisive_color * 12.0 * luma(color) * vec3(0.6, 0.5, 0.5) * correct_light_ore, quartz_match * factor_quartz);
+        emissive_color = mix(emissive_color, emissive_color * 12.0 * luma(color) * vec3(0.6, 0.5, 0.5) * correct_light_ore, quartz_match * factor_quartz);
 
         // LAPIS (ore_type == 7)
         vec3 target_color_lapis = vec3(0.0, 0.0, 1.0);
         float lapis_match = step(dot(color - target_color_lapis, color - target_color_lapis), 0.5625) * step(0.1, saturation) * step(0.1, luminance);
-        emmisive_color = mix(emmisive_color, emmisive_color * 20.0 * luma(color) * vec3(0.5, 0.5, 1.0) * correct_light_ore, lapis_match * factor_lapis);
+        emissive_color = mix(emissive_color, emissive_color * 20.0 * luma(color) * vec3(0.5, 0.5, 1.0) * correct_light_ore, lapis_match * factor_lapis);
 
         // COPPER (ore_type == 8)
         vec3 target_color_dark_copper = vec3(0.847,0.486,0.282);
@@ -110,11 +110,11 @@ vec3 emmisive_color = vec3(1.0);
         
         float copper_total_match = clamp(match_dark_copper + match_light_copper, 0.0, 1.0);
         
-        emmisive_color = mix(emmisive_color, emmisive_color * final_copper_emissive, copper_total_match * factor_copper);
+        emissive_color = mix(emissive_color, emissive_color * final_copper_emissive, copper_total_match * factor_copper);
 
     #endif
 
-    #if defined EMMISIVE_MATERIAL && defined GBUFFER_TERRAIN
+    #if defined EMISSIVE_MATERIAL && defined GBUFFER_TERRAIN
         float factor_redmat = step(1.0, float(emitter_type)) * step(float(emitter_type), 1.0); // Redstone
         float factor_solar = step(2.0, float(emitter_type)) * step(float(emitter_type), 2.0); // Solar panel
         float factor_cobs = step(3.0, float(emitter_type)) * step(float(emitter_type), 3.0); // Crying obsidian
@@ -151,12 +151,12 @@ vec3 emmisive_color = vec3(1.0);
         final_emissive_redmat = mix(final_emissive_redmat, vec3(1.0, 0.5, 0.5) * vec3(12.5 * correct_light), match_4_redmat);
         total_match_redmat = max(total_match_redmat, match_4_redmat);
         
-        emmisive_color = mix(emmisive_color, emmisive_color * final_emissive_redmat, total_match_redmat * factor_redmat);
+        emissive_color = mix(emissive_color, emissive_color * final_emissive_redmat, total_match_redmat * factor_redmat);
         
         // SOLAR PANEL (emitter_type == 2)
         vec3 target_color_dark_solar = vec3(1.0);
         float solar_match = step(dot(color - target_color_dark_solar, color - target_color_dark_solar), 0.49) * step(0.00, saturation) * step(0.1, luminance);
-        emmisive_color = mix(emmisive_color, emmisive_color * 10.0 * correct_light * color * color * block_luma, solar_match * factor_solar);
+        emissive_color = mix(emissive_color, emissive_color * 10.0 * correct_light * color * color * block_luma, solar_match * factor_solar);
         
         // CRYING OBSIDIAN (emitter_type == 3)
         vec3 target_color_dark_cobs = vec3(0.25, 0.0, 0.5);
@@ -173,7 +173,7 @@ vec3 emmisive_color = vec3(1.0);
         
         float total_match_cobs = clamp(match_1_cobs + match_2_cobs, 0.0, 1.0);
         
-        emmisive_color = mix(emmisive_color, emmisive_color * final_emissive_cobs, total_match_cobs * factor_cobs);
+        emissive_color = mix(emissive_color, emissive_color * final_emissive_cobs, total_match_cobs * factor_cobs);
         
         // WHITE HIGHLIGHTS (emitter_type == 4)
         vec3 target_color_dark_wh = vec3(0.5, 1.0, 1.0);
@@ -181,9 +181,9 @@ vec3 emmisive_color = vec3(1.0);
         vec3 target_color_light_wh = vec3(0.75);
         vec3 target_color_light_2_wh = vec3(0.686,0.686,0.525);
         
-        float match_1_wh = step(dot(color - target_color_dark_wh, color - target_color_dark_wh), 0.49) * step(0.5, saturation) * step(0.2, luminance);
+        float match_1_wh = step(dot(color - target_color_dark_wh, color - target_color_dark_wh), 0.4) * step(0.5, luminance);
         float match_2_wh = step(dot(color - target_color_light_wh, color - target_color_light_wh), 0.65) * step(0.99, luminance);
-        float match_3_wh = step(dot(color - target_color_light_2_wh, color - target_color_light_2_wh), 0.04) * step(0.1, saturation);
+        float match_3_wh = step(dot(color - target_color_light_2_wh, color - target_color_light_2_wh), 0.06) * step(0.1, saturation);
         float match_4_wh = step(dot(color - target_color_dark_2_wh, color - target_color_dark_2_wh), 0.28) * step(0.3, saturation) * step(0.0, luminance);
         
         vec3 final_emissive_wh = vec3(1.0);
@@ -198,7 +198,7 @@ vec3 emmisive_color = vec3(1.0);
         final_emissive_wh = mix(final_emissive_wh, vec3(2.5) * correct_light, match_4_wh);
         total_match_wh = max(total_match_wh, match_4_wh);
         
-        emmisive_color = mix(emmisive_color, emmisive_color * final_emissive_wh, total_match_wh * factor_wh);
+        emissive_color = mix(emissive_color, emissive_color * final_emissive_wh, total_match_wh * factor_wh);
         
         // FIRE (emitter_type == 5)
         vec3 target_color_dark_fire = vec3(1.0, 0.5, 0.0);
@@ -215,14 +215,14 @@ vec3 emmisive_color = vec3(1.0);
         final_emissive_fire = mix(final_emissive_fire, vec3(15.0) * correct_light * block_luma, match_2_fire);
         total_match_fire = max(total_match_fire, match_2_fire);
 
-        emmisive_color = mix(emmisive_color, emmisive_color * final_emissive_fire, total_match_fire * factor_fire);
+        emissive_color = mix(emissive_color, emissive_color * final_emissive_fire, total_match_fire * factor_fire);
         
         // SCULK (emitter_type == 6)
         vec3 target_color_sculk = vec3(0.05, 0.7, 0.8);
         float distance_to_target_sculk = distance(color, target_color_sculk);
         float brightness_sculk = smoothstep(0.6, 0.0, distance_to_target_sculk) * 10.0;
         float match_sculk = step(0.5, saturation) * step(0.2, luminance);
-        emmisive_color = mix(emmisive_color, emmisive_color * (1.0 + brightness_sculk * correct_light), match_sculk * factor_sculk);
+        emissive_color = mix(emissive_color, emissive_color * (1.0 + brightness_sculk * correct_light), match_sculk * factor_sculk);
         
         // LAVA/MAGMA/ETC. (emitter_type == 7)
         vec3 target_color_dark_lba = vec3(1.0, 0.5, 0.0);
@@ -233,34 +233,35 @@ vec3 emmisive_color = vec3(1.0);
         float match_2_lba = step(dot(color - target_color_dark_2_lba, color - target_color_dark_2_lba), 0.6) * step(saturation, 0.67) * step(luminance, 0.6); 
         float match_3_lba = step(dot(color - target_color_light_lba, color - target_color_light_lba), 1.0);
 
-        emmisive_color = mix(emmisive_color, emmisive_color * 1.75 * correct_light * vec3(1.0, 0.5, 1.0), match_1_lba * factor_lba);
-        emmisive_color -= mix(vec3(0.0), v3_luma(candle_color * 0.8) * correct_light, match_2_lba * factor_lba);
-        emmisive_color -= mix(vec3(0.0), (candle_color * 0.5) - v3_luma(candle_color * 0.5) * correct_light, match_3_lba * factor_lba);
+        emissive_color = mix(emissive_color, emissive_color * 1.75 * vec3(1.0, 0.4, 1.0), match_1_lba * factor_lba);
+        emissive_color -= mix(vec3(0.0), gray(candle_color * 0.8) * correct_light, match_2_lba * factor_lba);
+        emissive_color -= mix(vec3(0.0), (candle_color * 0.5) - gray(candle_color * 0.5) * correct_light, match_3_lba * factor_lba);
         
         // FROGLIGHT (emitter_type == 8)
-        emmisive_color = mix(emmisive_color, emmisive_color * color * 1.4, factor_frog);
-        emmisive_color -= mix(vec3(0.0), (candle_color * 0.25) * correct_light, factor_frog);
+        emissive_color = mix(emissive_color, emissive_color * color * 1.4, factor_frog);
+        emissive_color -= mix(vec3(0.0), (candle_color * 0.25) * correct_light, factor_frog);
         
         // FAKE EMISSORS (emitter_type == 9)
         vec3 target_color_fake = vec3(0.4353, 0.3373, 0.2745);
-        float match_fake = step(0.12, dot(color - target_color_fake, color - target_color_fake)) * step(-0.1, saturation) * step(0.0, luminance); 
-        emmisive_color = (mix(emmisive_color, emmisive_color * 2.75 * color * correct_light, match_fake * factor_fake));
+        float match_fake = step(0.12, dot(color - target_color_fake, color - target_color_fake)) * step(-0.1, saturation); 
+        emissive_color = (mix(emissive_color, emissive_color * 2.75 * color * correct_light, match_fake * factor_fake));
         
         // RAIL (emitter_type == 10)
         vec3 target_color_rail = vec3(1.0, 0.0, 0.0);
         float rail_match = step(dot(color - target_color_rail, color - target_color_rail), 0.25);
-        emmisive_color = mix(emmisive_color, emmisive_color * 10.0 * vec3(1.0, 0.0, 0.0) * correct_light, rail_match * factor_rail);
+        emissive_color = mix(emissive_color, emissive_color * 1000.0 * vec3(1.0, 0.0, 0.0) * correct_light, rail_match * factor_rail);
 
         // END PORTAL FRAME (emitter_type == 11)
         vec3 target_color_end = vec3(1.0, 1.0, 1.0);
-        vec3 target_color_end2 = vec3(0.0, 0.7765, 0.5412);
+        vec3 target_color_end2 = vec3(0.0, 0.5333, 0.3725);
         
-        float end_match = step(dot(color - target_color_end, color - target_color_end), 20.25) * step(0.0, saturation) * step(0.0, luminance);
-        float end_match2 = step(dot(color - target_color_end2, color - target_color_end2), 0.5) * step(0.0, saturation);
+        float end_match = step(dot(color - target_color_end, color - target_color_end), 0.0);
+        float end_match2 = step(dot(color - target_color_end2, color - target_color_end2), 0.4) * step(0.2, saturation);
         
-        emmisive_color = mix(emmisive_color, emmisive_color * 3.5 * color * correct_light, end_match2 * factor_end);
+        emissive_color = mix(emissive_color, emissive_color * 3.5 * color * correct_light, end_match2 * factor_end);
+        reflex_index2 = mix(0.0, 0.5,  end_match2 * factor_end);
 
-        emmisive_color -= mix(vec3(0.0), v3_luma(final_candle_color * 0.75) * correct_light, end_match * factor_end);
+        emissive_color -= mix(vec3(0.0), gray(final_candle_color * 0.75) * correct_light, end_match * factor_end);
     #endif
     }
 #endif
@@ -271,7 +272,7 @@ vec3 emmisive_color = vec3(1.0);
     block_color = mix(block_color, saturate_v4(block_color * 1.5, 0.25), match_rain);
 #endif
 
-#if defined GBUFFER_ENTITIES
+#if (defined EMISSIVE_MATERIAL) && defined GBUFFER_ENTITIES
     if(entityId == 10200) { // DROWNED
         vec3 target_color_dr = vec3(0.561, 0.945, 0.843);
         vec3 target_color_dr2 = vec3(0.192, 0.678, 0.718);
@@ -281,10 +282,16 @@ vec3 emmisive_color = vec3(1.0);
         float drowned_match2 = step(dot(pure_block_color.rgb - target_color_dr2, pure_block_color.rgb - target_color_dr2), 0.01);
         float drowned_match3 = step(dot(pure_block_color.rgb - target_color_dr3, pure_block_color.rgb - target_color_dr3), 0.01);
 
-        emmisive_color = mix(emmisive_color, emmisive_color * 5, drowned_match);
-        emmisive_color = mix(emmisive_color, emmisive_color * 5, drowned_match2);
-        emmisive_color = mix(emmisive_color, emmisive_color * 5, drowned_match3);
+        emissive_color = mix(emissive_color, emissive_color * 5, drowned_match);
+        emissive_color = mix(emissive_color, emissive_color * 5, drowned_match2);
+        emissive_color = mix(emissive_color, emissive_color * 5, drowned_match3);
     }
 #endif
 
-block_color.rgb *= emmisive_color;
+#ifdef GBUFFER_ENTITIES
+    if(entityId == 10201) { // FIRE
+        emissive_color *= 10.0 * vec3(1.0, 0.5, 0.25);
+    }
+#endif
+
+block_color.rgb *= emissive_color;

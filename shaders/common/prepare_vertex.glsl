@@ -35,13 +35,13 @@ varying vec3 pure_low_sky_color;
 /* Utility functions */
 
 #include "/lib/luma.glsl"
-#include "/lib/downscale.glsl"
+//#include "/lib/downscale.glsl"
 
 // MAIN FUNCTION ------------------
 
 void main() {
     gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-    resize_vertex(gl_Position);
+    //resize_vertex(gl_Position);
 
     #include "/src/hi_sky.glsl"
     #include "/src/mid_sky.glsl"

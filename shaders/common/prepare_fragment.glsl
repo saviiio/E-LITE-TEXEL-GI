@@ -1,4 +1,4 @@
-// LITE shaders 4.9 - Prepare_fragment.glsl
+// E-LITE shaders 5 - Prepare_fragment.glsl
 // Sky colors.
 
 #include "/lib/config.glsl"
@@ -50,18 +50,20 @@ varying vec4 position;
 
 #include "/lib/dither.glsl"
 #include "/lib/biome_sky.glsl"
+#include "/lib/basic_utils.glsl"
 
 #ifdef THE_END
+    #include "/lib/render_aux.glsl"
     #include "/lib/stars.glsl"
 #endif
 
 #define FRAGMENT
-#include "/lib/downscale.glsl"
+//#include "/lib/downscale.glsl"
 
 // MAIN FUNCTION ------------------
 
 void main() {
-    if(fragment_cull()) discard;
+    //if(fragment_cull()) discard;
     #if defined THE_END 
         vec4 star_color = vec4(stars(), 1.0);
         vec3 block_color = ZENITH_DAY_COLOR + star_color.rgb;
@@ -69,6 +71,8 @@ void main() {
         vec3 block_color = ZENITH_DAY_COLOR;
     #else
         #include "/src/get_sky.glsl"
+        block_color = saturate(block_color, 0.85);
     #endif
+
     #include "/src/writebuffers.glsl"
 }

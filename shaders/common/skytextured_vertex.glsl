@@ -21,7 +21,8 @@ uniform float viewWidth;
 uniform float viewHeight; 
 uniform int frameCounter;
 uniform float frameTime;
-#if AA_TYPE > 0
+
+#if AA_TYPE > 1
     #include "/src/taa_offset.glsl"
 #endif
 
@@ -33,7 +34,7 @@ uniform mat4 gbufferModelViewInverse;
 /* Utility functions */
 
 #include "/lib/luma.glsl"
-#include "/lib/downscale.glsl"
+//#include "/lib/downscale.glsl"
 
 // MAIN FUNCTION ------------------
 
@@ -59,7 +60,7 @@ void main() {
 
         current_wetness = 1 - rainStrength;
 
-        #if COLOR_SCHEME == 12
+        #if COLOR_SCHEME == 5
             cursed_sky = day_blend(vec3(2.0), vec3(1.0), vec3(4.0, 0.5, 0.5));
             sky_luma_correction *= day_blend_float(0.5, 0.0, 1.0);
         #endif
@@ -73,7 +74,7 @@ void main() {
 
 
     gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-    resize_vertex(gl_Position);
+    //resize_vertex(gl_Position);
 
     #if AA_TYPE > 1
         gl_Position.xy += taa_offset * gl_Position.w;

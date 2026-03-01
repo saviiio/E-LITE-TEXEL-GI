@@ -1,6 +1,6 @@
 #version 120
-/* MakeUp - LITE shaders 4.9 - composite2.vsh
-Render: Antialiasing
+/* MakeUp - E-LITE shaders 5 - composite1.fsh
+Render: Antialiasing and motion blur
 
 Javier Garduño - GNU Lesser General Public License v3.0
 */

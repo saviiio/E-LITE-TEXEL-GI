@@ -1,9 +1,9 @@
-/* __   ______________
-  / /  /  _/_  __/ __/
- / /___/ /  / / / _/
-/____/___/ /_/ /___/
-
-LITE shaders 4.9 - render_aux.glsl
+/* ____    __   ______________
+  / __/___/ /  /  _/_  __/ __/
+ / _//___/ /___/ /  / / / _/  
+/___/   /____/___/ /_/ /___/  
+                                                      
+E-LITE shaders 5 - render_aux.glsl
 Render auxiliary calculations. - Cálculos auxiliares de renderização.
 */
 

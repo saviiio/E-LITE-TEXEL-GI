@@ -1,4 +1,4 @@
-/* MakeUp - LITE shaders 4.9 - shadow_vertex.glsl
+/* MakeUp - E-LITE shaders 5 - shadow_vertex.glsl
 Vertex shadow function.
 
 Javier Garduño - GNU Lesser General Public License v3.0

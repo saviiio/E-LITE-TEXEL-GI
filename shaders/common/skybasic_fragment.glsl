@@ -22,16 +22,15 @@ uniform float viewWidth;
 uniform float viewHeight;
 uniform int frameCounter;
 uniform float frameTime;
-#if STAR_SLIDER == 2 || defined THE_END
+uniform mat4 gbufferModelViewInverse;
+
+#if STAR_SLIDER == 2 || defined THE_END 
     uniform float frameTimeCounter;
     uniform vec3 cameraPosition;
-    uniform mat4 gbufferModelViewInverse;
     uniform float sunAngle;
 #endif
 
-#if COLOR_SCHEME == 8
-    uniform vec3 sunPosition;
-#endif
+uniform vec3 sunPosition;
 
 #if MC_VERSION < 11604
     uniform vec4 lightningBoltPosition;
@@ -54,26 +53,29 @@ varying vec4 position;
 
 /* Utility functions */
 
+#include "/lib/basic_utils.glsl"
+
 #if STAR_SLIDER == 2 || AA_TYPE > 0
     #include "/lib/dither.glsl"
 #endif
 
 #if (STAR_SLIDER == 2 || defined THE_END) && !defined NETHER
+    #include "/lib/render_aux.glsl"
     #include "/lib/stars.glsl"
 #endif
 
 #include "/lib/biome_sky.glsl"
 #define FRAGMENT
-#include "/lib/downscale.glsl"
+//#include "/lib/downscale.glsl"
 
 // MAIN FUNCTION ------------------
 
 void main() {
-    if(fragment_cull()) discard;
+    //if(fragment_cull()) discard;
     #if (STAR_SLIDER == 2 || defined THE_END) && !defined NETHER
         vec4 star_color = vec4(stars(), 1.0);
     #endif
-    
+
     float vanilla_mul;
     #if defined THE_END
         vec4 background_color = vec4(ZENITH_DAY_COLOR, 1.0) + star_color;
@@ -105,7 +107,7 @@ void main() {
             vec4 block_color = vec4(0.0);
         #endif
 
-        #if COLOR_SCHEME == 11// LITE Vanilla
+        #if COLOR_SCHEME == 4 // Vanilla
             vanilla_mul = 1.2;
         #else
             vanilla_mul = 1.0;
@@ -116,6 +118,8 @@ void main() {
         #if MC_VERSION >= 11604
             block_color.a = star_data.a;
         #endif
+
+       // block_color.rgb += sun;
     #endif
     
     #include "/src/writebuffers.glsl"

@@ -2,7 +2,7 @@ gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
 
 #ifdef FOLIAGE_V  // Lógica optimizada para follaje y bloques generales
 
-        is_foliage = 0.0;
+        isFoliage = 0.0;
 
     // Comprobamos si la entidad actual es un tipo de follaje.
     bool isFoliageEntity = (
@@ -11,14 +11,17 @@ gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
             mc_Entity.x == ENTITY_SMALLGRASS ||
             mc_Entity.x == ENTITY_SMALLENTS ||
             mc_Entity.x == ENTITY_LEAVES ||
-        mc_Entity.x == ENTITY_SMALLENTS_NW
+            mc_Entity.x == ENTITY_WHITE_LEAVES ||
+            mc_Entity.x == ENTITY_SMALLENTS_NW
     );
+
+    isSeasonable = float(isFoliageEntity || mc_Entity.x == SEASONABLE);
 
     vec4 sub_position = gl_ModelViewMatrix * gl_Vertex;
     vec4 position = gbufferModelViewInverse * sub_position;
     
     if (isFoliageEntity) {
-            is_foliage = 0.4;
+            isFoliage = 0.4;
 
         #if WAVING == 1
             if (mc_Entity.x != ENTITY_SMALLENTS_NW) {
@@ -29,7 +32,7 @@ gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
 
             if (mc_Entity.x == ENTITY_UPPERGRASS) {
                 weight += 1.0;
-                } else if (mc_Entity.x == ENTITY_LEAVES) {
+                } else if (mc_Entity.x == ENTITY_LEAVES || mc_Entity.x == ENTITY_WHITE_LEAVES) {
                     weight = .6;
             } else if (mc_Entity.x == ENTITY_SMALLENTS && (weight > 0.9 || fract(worldpos.y + 0.0675) > 0.01)) {
                 weight = 1.0;
@@ -70,4 +73,8 @@ gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
     #else
         gl_FogFragCoord = length(viewPos.xyz);
     #endif
+#endif
+
+#if defined SHADOW_CASTING && SHADOW_LOCK > 0 && !defined NETHER && !defined GBUFFER_BASIC && !defined GBUFFER_CLOUDS && !defined GBUFFER_ARMOR_GLINT && !defined GBUFFER_SPIDEREYES
+    vWorldPos = position.xyz;
 #endif

@@ -24,6 +24,10 @@ uniform float rainStrength;
 uniform float wetness;
 uniform mat4 gbufferProjectionInverse;
 uniform int dhRenderDistance;
+uniform float viewWidth; 
+uniform float viewHeight; 
+uniform int frameCounter;
+uniform float frameTime;
 
 #ifdef UNKNOWN_DIM
     uniform sampler2D lightmap;
@@ -42,14 +46,14 @@ varying vec3 candle_color;
 varying float direct_light_strength;
 varying vec3 omni_light;
 varying vec4 position;
+varying vec4 sub_position;
 varying float fog_adj;
-uniform float viewWidth; 
-uniform float viewHeight; 
-uniform int frameCounter;
-uniform float frameTime;
+varying float near_fog;
+varying vec3 flat_normal;
+
 /* Utility functions */
 
-#if AA_TYPE > 0
+#if AA_TYPE > 1
     #include "/src/taa_offset.glsl"
 #endif
 
@@ -58,7 +62,7 @@ uniform float frameTime;
 
 #define FOG_BIOME
 #include "/lib/biome_sky.glsl"
-#include "/lib/downscale.glsl"
+//#include "/lib/downscale.glsl"
 
 // MAIN FUNCTION ------------------
 
@@ -70,8 +74,10 @@ void main() {
 
     #include "/src/basiccoords_vertex_dh.glsl"
     #include "/src/position_vertex_dh.glsl"
-    resize_vertex(gl_Position);
+    //resize_vertex(gl_Position);
     #include "/src/hi_sky.glsl"
     #include "/src/light_vertex_dh.glsl"
     #include "/src/fog_vertex_dh.glsl"
+
+    flat_normal = normal;
 }

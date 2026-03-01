@@ -1,38 +1,107 @@
-   __   ______________                       
-  / /  /  _/_  __/ __/                       
- / /___/ /  / / / _/                         
-/____/___/ /_/ /_____              ____  ___ 
-  ___ / / ___ ____/ ___ _______   / / / / _ \
- (_-</ _ / _ `/ _  / -_/ __(_-<  /_  __ \_, /
-/___/_//_\_,_/\_,_/\__/_/ /___/   /_/(_/___/  
-                                                                                        
-# LITE shaders version 4.9
-
-Original creator: Javier Garduño
+# E-LITE shaders version 5
+MakeUp - Ultrafast original creator: Javier Garduño
 Links:
 https://www.planetminecraft.com/mod/makeup-ultra-fast-shader
 https://www.curseforge.com/minecraft/customization/makeup-ultra-fast-shader
 https://github.com/javiergcim/MakeUpUltraFast
 
-Modfied and translated by @EntokitoDezonze
+Modfied and translated by @Entokito
 
 Changelog:
 
-# OVERVIEW:
-- This version makes minor adjustments to the shader.
+# SPECIAL THANKS TO BETA TESTERS:
+- tasxatzial
+- avc1657
+
+# OVERVIEW
+- This version is a major update, bringing several features and improving the appearance of the shader in several areas, such as fog and sky, in addition to a rebrand.
+
+# Rebrand: LITE is now E-LITE.
+- "E-" stands for Entokito, my nickname :)
+
+# New feature - Block reflection.
+- Makes blocks reflect light like water.
+- Medium performance impact.
+- Integrated with Material Gloss.
+
+# New feature - Pixel-locked shadows. (Inherited from MakeUp)
+- Makes shadows pixel-locked in the world.
+- Adjustable pixel size.
+- Works with caustics.
+
+# New feature - Aurora Borealis.
+- Optional feature.
+- Fast and fancy!
+
+# New feature - Round sun.
+- Optional feature.
+
+# New feature - Near fog.
+- Adds a small fog near the player, increasing immersion.
+- Optional feature.
+
+# New feature - Seasons.
+- Adjustable season length.
+- Fancy! Enable it at: Misc -> Seasons.
+
+# New tonemap - Uchimura.
+- Better contrast and colors than Lottes. Now it is the default.
+
+# Color scheme changes:
+- The following color schemes were removed in E-LITE: Ethereal, Shoka, Legacy (MakeUp), Captain, Psychedelic, Testigo, and Realistic (pollution).
+- LITE Cursed, LITE Vanilla, and LITE Legacy are now: Cursed, Vanilla, and Legacy.
+- New color scheme: Realistic (Simple), simulates Realistic+, but introducing a slight performance gain.
+
+# Lighting changes:
+- Subsurface scattering of leaves has been modified, making trees look better at long distances.
+- Grass lighting is improved. Now it is smoother.
+- Main lighting is clearer during the day.
+
+# Fog change:
+- Fog is now influenced by the sun, giving a more volumetric look to sunsets/rises.
 
 # General changes:
-- Vanilla water has now a smoother texture.
-- Bit reduced samples on Blocky clouds, improving performance (no visual impact.)
-- Slightly adjusted cloud colors on rain.
+- Sugar cane does not wave anymore.
+- Selection lines are now white by default. They can be RGB-like too (Misc -> Selection lines).
+- Motion blur code has been restored to the same as in version 4.7.3, as this works better.
+- Improved bloom quality.
+- Sky now has a bit of noise to avoid color banding (Realistic+ and Cursed).
+- PS1 effect does not render at 50% quality anymore due to some bugs and "blur".
+- Small optimizations have been made to the code.
+- Auto-exposure now avoids overly bright blocks when the player is in a cave or a dark place.
+- Vanilla sun look was enhanced.
+- Realistic+ sky now simulates sun glow, even in rain.
+- Improved godrays during rain at sunsets.
+- Reduced TAA ghosting.
+- Added waving support to the [Wilder Flowers](https://modrinth.com/mod/wilder-flowers/gallery) mod (Thanks to Tas).
+- Added support for the [Aurora’s Lanterns](https://www.curseforge.com/minecraft/mc-mods/auroraslanterns/comments) mod (Inherited).
+- AMD FSR 1.0 has been removed because it did not meet expectations and caused (MANY) problems.
+- Some typos were fixed.
+- Reduced noise on clouds.
+- FXAA is now enabled by default.
+- Cleaned up unused code.
+
+# Interface changes:
+- New screen: Misc. Some options have been moved here.
+
+# Profile changes:
+- Shadowless profiles are discontinued.
+- "No effects" is now "Minimum".
 
 # Bugfixes:
-- Fixed ghosting on Smart TAA.
-- Fixed excessive fog on Distant Horizons + Snowy biome with "Biome fog" enabled.
-- Fixed some typos in Portuguese language.
+- Fixed cherry and pale leaves not waving.
+- Fixed a bug that made fire cast by entities almost black.
+- Fixed a bug that made the bottom of trees / caves in the LITE Cursed color scheme too bright.
+- Fixed a bug that made the screen zoom when enabling PS1-Like on Oculus 1.8.0. (#5 GitHub)
+- Fixed some inconsistencies in glowing ores and materials.
+- Fixed a bug that caused clouds to be stretched in older versions of Minecraft.
+- Fixed a bug that caused vanilla clouds above 1.21.6 to appear in DH chunks.
 
-Version code: LT49
+# Known issue:
+- Colored glass is not visible through water when viewed from outside.
 
-Based in MakeUp Ultrafast 9.3h
+Version code: ELT5
+
+Based in MakeUp Ultrafast 9.4c
 
 Olá de Entokito :) 

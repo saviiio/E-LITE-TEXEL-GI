@@ -1,5 +1,5 @@
 #version 120
-/* MakeUp - LITE shaders 4.9 - gbuffers_basic.fsh
+/* MakeUp - E-LITE shaders 5 - gbuffers_basic.fsh
 Render: Basic elements - lines
 
 Javier Garduño - GNU Lesser General Public License v3.0

@@ -1,4 +1,4 @@
-/* MakeUp - LITE shaders 4.9 - dither.glsl
+/* MakeUp - E-LITE shaders 5 - dither.glsl
 Dither and hash functions
 
 There are a multitude of dithers in MakeUp, with different variants.
@@ -28,282 +28,198 @@ but there is no such texture currently.
 
 */
 
-#if MC_VERSION >= 11300
-    uniform float dither_shift;
-#endif
 uniform int frame_mod;
 
-float hash12(vec2 v) {
-    v = 0.0002314814814814815 * v + vec2(0.25, 0.0);
-    float state = fract(dot(v * v, vec2(3571.0)));
+#if MC_VERSION >= 11300
+    uniform float dither_shift;
+#else
+    float dither_shift = frame_mod * 0.1875;
+#endif
+
+float hash12(vec2 point) {
+    point = 0.0002314814814814815 * point + vec2(0.25, 0.0);
+    float state = fract(dot(point * point, vec2(3571.0)));
     return fract(state * state * 7142.0);
 }
 
-float hash13(vec3 v) {
-    v = fract(v * .1031);
-    v += dot(v, v.zyx + 31.32);
-    return fract((v.x + v.y) * v.z);
+float hash13(vec3 point) {
+    point = fract(point * .1031);
+    point += dot(point, point.zyx + 31.32);
+    return fract((point.x + point.y) * point.z);
 }
 
-vec2 hash22(vec2 p) {
-	vec3 p3 = fract(vec3(p.xyx) * vec3(.1031, .1030, .0973));
-    p3 += dot(p3, p3.yzx+33.33);
-    return fract((p3.xx+p3.yz)*p3.zy);
+vec2 hash22(vec2 point) {
+	  vec3 p3 = fract(vec3(point.xyx) * vec3(.1031, .1030, .0973));
+    p3 += dot(p3, p3.yzx + 33.33);
+    return fract((p3.xx + p3.yz) * p3.zy);
 }
 
-float r_dither(vec2 frag) {
-    return fract(dot(frag, vec2(0.75487766624669276, 0.569840290998)));
+float r_dither(vec2 point) {
+    return fract(dot(point, vec2(0.75487766624669276, 0.569840290998)));
 }
 
-float eclectic_r_dither(vec2 frag) {
-    vec2 v = 0.0002314814814814815 * frag + vec2(0.25, 0.0);
-    float state = fract(dot(v * v, vec2(3571.0)));
+float eclectic_r_dither(vec2 point) {
+    vec2 rPoint = 0.0002314814814814815 * point + vec2(0.25, 0.0);
+    float state = fract(dot(rPoint * rPoint, vec2(3571.0)));
     float p4 = fract(state * state * 7142.0) * 0.075;
 
-    return fract(dot(frag, vec2(0.75487766624669276, 0.569840290998)) + p4);
+    return fract(dot(point, vec2(0.75487766624669276, 0.569840290998)) + p4);
 }
 
-float dither13(vec2 frag)
-{
-    return fract(dot(frag, vec2(0.3076923076923077, 0.5384615384615384)));
+float dither13(vec2 point) {
+    return fract(dot(point, vec2(0.3076923076923077, 0.5384615384615384)));
 }
 
-float eclectic_dither13(vec2 frag)
-{
-    vec2 v = 0.0002314814814814815 * frag + vec2(0.25, 0.0);
-    float state = fract(dot(v * v, vec2(3571.0)));
+float eclectic_dither13(vec2 point) {
+    vec2 rPoint = 0.0002314814814814815 * point + vec2(0.25, 0.0);
+    float state = fract(dot(rPoint * rPoint, vec2(3571.0)));
     float p4 = fract(state * state * 7142.0) * 0.075;
 
-    return fract(dot(frag, vec2(0.3076923076923077, 0.5384615384615384)) + p4);
+    return fract(dot(point, vec2(0.3076923076923077, 0.5384615384615384)) + p4);
 }
 
-float dither17(vec2 pos) {
-  return fract(dot(pos, vec2(0.11764705882352941, 0.4117647058823529)));
+float dither17(vec2 point) {
+  return fract(dot(point, vec2(0.11764705882352941, 0.4117647058823529)));
 }
 
-float eclectic_dither17(vec2 frag) {
-  vec2 v = 0.0002314814814814815 * frag + vec2(0.25, 0.0);
-  float state = fract(dot(v * v, vec2(3571.0)));
+float eclectic_dither17(vec2 point) {
+  vec2 rPoint = 0.0002314814814814815 * point + vec2(0.25, 0.0);
+  float state = fract(dot(rPoint * rPoint, vec2(3571.0)));
   float p4 = fract(state * state * 7142.0) * 0.15;
 
-  return fract(p4 + dot(frag, vec2(0.11764705882352941, 0.4117647058823529)));
+  return fract(p4 + dot(point, vec2(0.11764705882352941, 0.4117647058823529)));
 }
 
-float dither_grad_noise(vec2 frag) {
-    return fract(52.9829189 * fract(dot(vec2(0.06711056, 0.00583715), frag)));
+float dither_grad_noise(vec2 point) {
+    return fract(52.9829189 * fract(dot(vec2(0.06711056, 0.00583715), point)));
 }
 
-float eclectic_dither_grad_noise(vec2 frag) {
-    vec2 v = 0.0002314814814814815 * frag + vec2(0.25, 0.0);
-    float state = fract(dot(v * v, vec2(3571.0)));
+float eclectic_dither_grad_noise(vec2 point) {
+    vec2 rPoint = 0.0002314814814814815 * point + vec2(0.25, 0.0);
+    float state = fract(dot(rPoint * rPoint, vec2(3571.0)));
     float p4 = fract(state * state * 7142.0) * 0.075;
 
-    return fract(52.9829189 * fract(dot(vec2(0.06711056, 0.00583715), frag)) + p4);
+    return fract(52.9829189 * fract(dot(vec2(0.06711056, 0.00583715), point)) + p4);
 }
 
-float texture_noise_64(vec2 p, sampler2D noise) {
-    return texture2DLod(noise, p * 0.015625, 0).r;
+float texture_noise_64(vec2 point, sampler2D noise) {
+    return texture2DLod(noise, point * 0.015625, 0).r;
 }
 
-float semiblue(vec2 xy) {
-    vec2 tile = floor(xy * 0.25);
+float semiblue(vec2 point) {
+    vec2 tile = floor(point * 0.25);
     float flip = mod(tile.x + tile.y, 2.0);
-    xy = mix(xy, xy.yx, flip);
+    point = mix(point, point.yx, flip);
 
-    return fract(dot(vec2(0.75487766624669276, 0.569840290998), xy) + hash12(tile));
+    return fract(dot(vec2(0.75487766624669276, 0.569840290998), point) + hash12(tile));
 }
 
-float dither_makeup(vec2 xy) {
-    vec2 tile = floor(xy * 0.125);
+float dither_makeup(vec2 point) {
+    vec2 tile = floor(point * 0.125);
     float flip = mod(tile.x + tile.y, 2.0);
-    vec2 zw = mix(xy, xy.yx, flip);
+    vec2 rPoint = mix(point, point.yx, flip);
 
     return fract(
-        dot(vec2(0.24512233375330728, 0.4301597090019468), zw) +
+        dot(vec2(0.24512233375330728, 0.4301597090019468), rPoint) +
         dot(vec2(0.735151469707489, 0.737424373626709), tile)
     );
 }
 
-// float valve_red(vec2 xy) {
-//     float vDither = dot(vec2( 171.0, 231.0 ), xy );
+// float valve_red(vec2 point) {
+//     float vDither = dot(vec2( 171.0, 231.0 ), point );
 //     return fract(vDither / 103.0);  // (103.0, 71. 97.0 )
 // }
 
-#if MC_VERSION >= 11300
+float shifted_hash12(vec2 point) {
+    point = 0.0002314814814814815 * point + vec2(0.25, 0.0);
+    float state = fract(dot(point * point, vec2(3571.0)));
+    return fract(dither_shift + (state * state * 7142.0));
+}
 
-    float shifted_hash12(vec2 v)
-    {
-        v = 0.0002314814814814815 * v + vec2(0.25, 0.0);
-        float state = fract(dot(v * v, vec2(3571.0)));
-        return fract(dither_shift + (state * state * 7142.0));
-    }
+float shifted_hash13(vec3 point) {
+    point = fract(point * .1031);
+    point += dot(point, point.zyx + 31.32);
+    return fract(dither_shift + ((point.x + point.y) * point.z));
+}
 
-    float shifted_hash13(vec3 v)
-    {
-        v = fract(v * .1031);
-        v += dot(v, v.zyx + 31.32);
-        return fract(dither_shift + ((v.x + v.y) * v.z));
-    }
-    
-    float shifted_r_dither(vec2 frag) {
-        return fract(dither_shift + dot(frag, vec2(0.75487766624669276, 0.569840290998)));
-    }
+float shifted_r_dither(vec2 point) {
+    return fract(dither_shift + dot(point, vec2(0.75487766624669276, 0.569840290998)));
+}
 
-    float shifted_eclectic_r_dither(vec2 frag) {
-        vec2 v = 0.0002314814814814815 * frag + vec2(0.25, 0.0);
-        float state = fract(dot(v * v, vec2(3571.0)));
-        float p4 = fract(state * state * 7142.0) * 0.075;
+float shifted_eclectic_r_dither(vec2 point) {
+    vec2 rPoint = 0.0002314814814814815 * point + vec2(0.25, 0.0);
+    float state = fract(dot(rPoint * rPoint, vec2(3571.0)));
+    float p4 = fract(state * state * 7142.0) * 0.075;
 
-        return fract(dot(frag, vec2(0.75487766624669276, 0.569840290998)) + dither_shift + p4);
-    }
+    return fract(dot(point, vec2(0.75487766624669276, 0.569840290998)) + dither_shift + p4);
+}
 
-    float shifted_dither13(vec2 frag)
-    {
-        return fract(dither_shift + dot(frag, vec2(0.3076923076923077, 0.5384615384615384)));
-    }
+float shifted_dither13(vec2 point) {
+    return fract(dither_shift + dot(point, vec2(0.3076923076923077, 0.5384615384615384)));
+}
 
-    float shifted_eclectic_dither13(vec2 frag)
-    {
-        vec2 v = 0.0002314814814814815 * frag + vec2(0.25, 0.0);
-        float state = fract(dot(v * v, vec2(3571.0)));
-        float p4 = fract(state * state * 7142.0) * 0.075;
+float shifted_eclectic_dither13(vec2 point) {
+    vec2 rPoint = 0.0002314814814814815 * point + vec2(0.25, 0.0);
+    float state = fract(dot(rPoint * rPoint, vec2(3571.0)));
+    float p4 = fract(state * state * 7142.0) * 0.075;
 
-        return fract(dot(frag, vec2(0.3076923076923077, 0.5384615384615384)) + dither_shift + p4);
-    }
+    return fract(dot(point, vec2(0.3076923076923077, 0.5384615384615384)) + dither_shift + p4);
+}
 
-    float shifted_dither17(vec2 pos) {
-        return fract(dither_shift + dot(pos, vec2(0.11764705882352941, 0.4117647058823529)));
-    }
+float shifted_dither17(vec2 point) {
+    return fract(dither_shift + dot(point, vec2(0.11764705882352941, 0.4117647058823529)));
+}
 
-    float shifted_eclectic_dither17(vec2 frag) {
-        vec2 v = 0.0002314814814814815 * frag + vec2(0.25, 0.0);
-        float state = fract(dot(v * v, vec2(3571.0)));
-        float p4 = fract(state * state * 7142.0) * 0.15;
+float shifted_eclectic_dither17(vec2 point) {
+    vec2 rPoint = 0.0002314814814814815 * point + vec2(0.25, 0.0);
+    float state = fract(dot(rPoint * rPoint, vec2(3571.0)));
+    float p4 = fract(state * state * 7142.0) * 0.15;
 
-        return fract(dither_shift + p4 + dot(frag, vec2(0.11764705882352941, 0.4117647058823529)));
-    }
+    return fract(dither_shift + p4 + dot(point, vec2(0.11764705882352941, 0.4117647058823529)));
+}
 
-    float shifted_dither_grad_noise(vec2 frag) {
-        return fract(dither_shift + (52.9829189 * fract(dot(vec2(0.06711056, 0.00583715), frag))));
-    }
+float shifted_dither_grad_noise(vec2 point) {
+    return fract(dither_shift + (52.9829189 * fract(dot(vec2(0.06711056, 0.00583715), point))));
+}
 
-    float shifted_eclectic_dither_grad_noise(vec2 frag) {
-        vec2 v = 0.0002314814814814815 * frag + vec2(0.25, 0.0);
-        float state = fract(dot(v * v, vec2(3571.0)));
-        float p4 = fract(state * state * 7142.0) * 0.075;
+float shifted_eclectic_dither_grad_noise(vec2 point) {
+    vec2 rPoint = 0.0002314814814814815 * point + vec2(0.25, 0.0);
+    float state = fract(dot(rPoint * rPoint, vec2(3571.0)));
+    float p4 = fract(state * state * 7142.0) * 0.075;
 
-        return fract(52.9829189 * fract(dot(vec2(0.06711056, 0.00583715), frag)) + dither_shift + p4);  
-    }
+    return fract(52.9829189 * fract(dot(vec2(0.06711056, 0.00583715), point)) + dither_shift + p4);  
+}
 
-    float shifted_texture_noise_64(vec2 p, sampler2D noise) {
-        float dither = texture2DLod(noise, p * 0.015625, 0).r;
-        return fract(dither_shift + dither);
-    }
+float shifted_texture_noise_64(vec2 point, sampler2D noise) {
+    float dither = texture2DLod(noise, point * 0.015625, 0).r;
+    return fract(dither_shift + dither);
+}
 
-    float shifted_semiblue(vec2 xy) {
-        vec2 tile = floor(xy * 0.25);
-        float flip = mod(tile.x + tile.y, 2.0);
-        xy = mix(xy, xy.yx, flip);
+float shifted_semiblue(vec2 point) {
+    point = point + vec2(frame_mod * 5.0, frame_mod * 15.0);
+    vec2 tile = floor(point * 0.25);
+    float flip = mod(tile.x + tile.y, 2.0);
+    point = mix(point, point.yx, flip);
 
-        return fract(dither_shift + dot(vec2(0.75487766624669276, 0.569840290998), xy) + hash12(tile));
-    }
+    return fract(dither_shift + dot(vec2(0.75487766624669276, 0.569840290998), point) + hash12(tile));
+}
 
-    float shifted_dither_makeup(vec2 xy) {
-        xy = xy + vec2(frame_mod * 3, frame_mod);
-        vec2 tile = floor(xy * 0.125);
-        float flip = mod(tile.x + tile.y, 2.0);
-        vec2 zw = mix(xy, xy.yx, flip);
+float shifted_dither_makeup(vec2 point) {
+    point = point + vec2(frame_mod * 9.0, frame_mod * 15.0);
+    vec2 tile = floor(point * 0.125);
+    float flip = mod(tile.x + tile.y, 2.0);
+    vec2 zw = mix(point, point.yx, flip);
 
-        return fract(
-            dither_shift +
-            dot(vec2(0.24512233375330728, 0.4301597090019468), zw) +
-            dot(vec2(0.735151469707489, 0.737424373626709), tile)
-        );
-    }
+    return fract(
+        dither_shift +
+        dot(vec2(0.24512233375330728, 0.4301597090019468), zw) +
+        dot(vec2(0.9996657054871321, 0.9998746076598763), tile)
+    );
+}
 
+// float shifted_valve_red(vec2 point) {
+//     float vDither = dot(vec2(171.0, 231.0), point );
+//     vDither = fract(vDither / 103.0);  // (103.0, 71. 97.0 )
 
-    // float shifted_valve_red(vec2 xy) {
-    //     float vDither = dot(vec2( 171.0, 231.0 ), xy );
-    //     vDither = fract(vDither / 103.0);  // (103.0, 71. 97.0 )
-
-    //     return fract(dither_shift + vDither);
-    // }
-
-#else
-
-    float shifted_hash12(vec2 v)
-    {
-        v = 0.0002314814814814815 * v + vec2(0.25, 0.0);
-        float state = fract(dot(v * v, vec2(3571.0)));
-        return fract((frame_mod * 0.4) + (state * state * 7142.0));
-    }
-
-    float shifted_hash13(vec3 v)
-    {
-        v = fract(v * .1031);
-        v += dot(v, v.zyx + 31.32);
-        return fract((frame_mod * 0.4) + ((v.x + v.y) * v.z));
-    }
-
-    float shifted_r_dither(vec2 frag) {
-        return fract((frame_mod * 0.4) + dot(frag, vec2(0.75487766624669276, 0.569840290998)));
-    }
-
-    float shifted_eclectic_r_dither(vec2 frag) {
-        vec2 v = 0.0002314814814814815 * frag + vec2(0.25, 0.0);
-        float state = fract(dot(v * v, vec2(3571.0)));
-        float p4 = fract(state * state * 7142.0) * 0.075;
-
-        return fract(dot(frag, vec2(0.75487766624669276, 0.569840290998)) + (frame_mod * 0.4) + p4);
-    }
-
-    float shifted_dither13(vec2 frag)
-    {
-        return fract((frame_mod * 0.4) + dot(frag, vec2(0.3076923076923077, 0.5384615384615384)));
-    }
-
-    float shifted_dither_grad_noise(vec2 frag) {
-        return fract((frame_mod * 0.4) + (52.9829189 * fract(dot(vec2(0.06711056, 0.00583715), frag))));
-    }
-
-    float shifted_eclectic_dither_grad_noise(vec2 frag) {
-        vec2 v = 0.0002314814814814815 * frag + vec2(0.25, 0.0);
-        float state = fract(dot(v * v, vec2(3571.0)));
-        float p4 = fract(state * state * 7142.0) * 0.075;
-
-        return fract(52.9829189 * fract(dot(vec2(0.06711056, 0.00583715), frag)) + (frame_mod * 0.4) + p4);
-    }
-
-    float shifted_texture_noise_64(vec2 p, sampler2D noise) {
-        float dither = texture2DLod(noise, p * 0.015625, 0).r;
-        return fract((frame_mod * 0.4) + dither);
-    }
-
-    float shifted_semiblue(vec2 xy) {
-        vec2 tile = floor(xy * 0.25);
-        float flip = mod(tile.x + tile.y, 2.0);
-        xy = mix(xy, xy.yx, flip);
-
-        return fract((frame_mod * 0.4) + dot(vec2(0.75487766624669276, 0.569840290998), xy) + hash12(tile));
-    }
-
-    float shifted_dither_makeup(vec2 xy) {
-        vec2 tile = floor(xy * 0.125);
-        float flip = mod(tile.x + tile.y, 2.0);
-        vec2 zw = mix(xy, xy.yx, flip);
-
-        return fract(
-            (frame_mod * 0.4) +
-            dot(vec2(0.24512233375330728, 0.4301597090019468), zw) +
-            dot(vec2(0.735151469707489, 0.737424373626709), tile)
-        );
-    }
-
-    // float shifted_valve_red(vec2 xy) {
-    //     float vDither = dot(vec2( 171.0, 231.0 ), xy );
-    //     vDither = fract(vDither / 103.0);  // (103.0, 71. 97.0 )
-
-    //     return fract((frame_mod * 0.4) + vDither);
-    // }
-
-#endif
+//     return fract(dither_shift + vDither);
+// }

@@ -13,7 +13,7 @@ varying vec2 texcoord;
 varying vec4 tint_color;
 varying float exposure;
 
-#if AA_TYPE > 0
+#if AA_TYPE > 1
     #include "/src/taa_offset.glsl"
 #endif
 

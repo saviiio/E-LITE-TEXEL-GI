@@ -1,9 +1,9 @@
-/* __   ______________
-  / /  /  _/_  __/ __/
- / /___/ /  / / / _/
-/____/___/ /_/ /___/
+/* ____    __   ______________
+  / ______/ /  /  _/_  __/ __/
+ / _//___/ /___/ /  / / / _/
+/___/   /____/___/ /_/ /___/
 
-LITE shaders 4.9 - end_portal.glsl #include "/lib/end_portal.glsl"
+E-LITE shaders 5 - end_portal.glsl #include "/lib/end_portal.glsl"
 End portal render. - Renderização do portal do End. */
 
 #include "/lib/render_aux.glsl"
@@ -56,7 +56,7 @@ vec3 end_portal() {
         uv_layer += flow_offset * flow_scale;
 
         float noise_val = noise2D_grid(uv_layer);
-        float base_intensity = pow(noise_val, 5.0);
+        float base_intensity = fastpow(noise_val, 5.0);
         float intensity = smoothstep(clip_min, clip_max, base_intensity);
 
         float layer_fade = pow(inverse_factor, depth_falloff_speed);
@@ -68,7 +68,7 @@ vec3 end_portal() {
     float depth_val = gl_FragCoord.z;
     float overall_depth_fade = 1.0 / (1.0 + depth_val * depth_val * 0.0001);
     final_color *= overall_depth_fade;
-    final_color = pow(final_color, vec3(1.6)) * 6.7; // SIX-SEVEN AHH!!
+    final_color = fastpow3(final_color, 1.5) * 6.7;
 
     return final_color;
 }

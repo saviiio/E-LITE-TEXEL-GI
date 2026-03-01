@@ -19,6 +19,8 @@ uniform float viewWidth;
 uniform float viewHeight;
 uniform int frameCounter;
 uniform float frameTime;
+uniform vec3 sunPosition;
+
 #ifdef THE_END
     uniform float frameTimeCounter;
     uniform vec3 cameraPosition;
@@ -37,12 +39,17 @@ varying float current_wetness;
 /* Utilitary functions */
 
 #define FRAGMENT
-#include "/lib/downscale.glsl"
+//#include "/lib/downscale.glsl"
 
 // MAIN FUNCTION ------------------
 
 void main() {
-    if(fragment_cull()) discard;
+    //if(fragment_cull()) discard;
+
+    vec3 sunDir = sunPosition * 0.01; 
+    float sunMask = step(0.0, -sunPosition.z); 
+    float moonMask = 1.0 - sunMask;
+
     #if defined THE_END
         vec4 block_color;
 
@@ -59,25 +66,28 @@ void main() {
         vec3 background_color = background_color_full.rgb;
         vec4 block_color = vec4(background_color, 1.0);
     #else
-        vec4 block_color = texture2D(tex, texcoord) * tint_color;
+        vec4 block_color = texture2D(tex, texcoord) * tint_color;        
         
         #ifndef CUSTOM_SKYFIX
+            #if ROUND_SUN < 2
+                if(any(lessThan(mix(vec3(1.0), block_color.rgb, sunMask), vec3(0.2)))) { discard; return; }
+            #endif
             block_color.rgb *= sky_luma_correction * current_wetness;
-            #if COLOR_SCHEME == 11 && !defined SIMPLE_AUTOEXP
+            #if COLOR_SCHEME == 4 && !defined SIMPLE_AUTOEXP
                 block_color.rgb *= day_blend_float(1.0, 1.5, sqrt(luma(block_color.rgb) * 0.5));
-            #elif COLOR_SCHEME == 11 && defined SIMPLE_AUTOEXP
+            #elif COLOR_SCHEME == 4 && defined SIMPLE_AUTOEXP
                 block_color.rgb *= day_blend_float(1.0, 1.5, sqrt(luma(block_color.rgb) * 3));
             #else
-                block_color.rgb *= day_blend(block_color.rgb, block_color.rgb, sqrt(block_color.rgb));
+                block_color.rgb *= day_blend(block_color.rgb, saturate(block_color.rgb, 0.5), sqrt(block_color.rgb));
             #endif
 
-            #if COLOR_SCHEME == 11 && defined SIMPLE_AUTOEXP
+            #if COLOR_SCHEME == 4 && defined SIMPLE_AUTOEXP
                 block_color.rgb = pow(block_color.rgb, vec3(ASTRO_POWER * day_blend_float(1.0, 1.0, 0.6)));
             #else
                 block_color.rgb = pow(block_color.rgb, vec3(ASTRO_POWER));
             #endif
             
-            #if COLOR_SCHEME == 12
+            #if COLOR_SCHEME == 5
                 block_color.rgb *= cursed_sky;
             #endif
         #else

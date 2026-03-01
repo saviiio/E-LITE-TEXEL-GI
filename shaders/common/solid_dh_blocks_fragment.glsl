@@ -27,7 +27,9 @@ varying vec3 candle_color;
 varying float direct_light_strength;
 varying vec3 omni_light;
 varying vec4 position;
+varying vec4 sub_position;
 varying float fog_adj;
+varying float near_fog;
 
 /* Utility functions */
 
@@ -35,7 +37,7 @@ varying float fog_adj;
 #include "/lib/dither.glsl"
 
 #define FRAGMENT
-#include "/lib/downscale.glsl"
+//#include "/lib/downscale.glsl"
 
 vec3 computeRealLightDH(vec3 omni, vec3 directColor, float directStrength, float shadow, vec3 candle, float rain) {
     return omni + vec3(shadow) * directColor * directStrength * (1.0 - (rain * 0.75)) + candle;
@@ -44,7 +46,7 @@ vec3 computeRealLightDH(vec3 omni, vec3 directColor, float directStrength, float
 // MAIN FUNCTION ------------------
 
 void main() {
-    if(fragment_cull()) discard;
+    //if(fragment_cull()) discard;
     #if AA_TYPE > 0 
         float dither = shifted_dither13(gl_FragCoord.xy);
     #else
@@ -63,11 +65,11 @@ void main() {
     vec4 block_color = tint_color;
     
     // Synthetic pseudo-texture
-    vec3 synth_pos = (position.xyz + cameraPosition) * 6.0;
+    vec3 synth_pos = (position.xyz + cameraPosition) * 16.0;
     synth_pos = floor(synth_pos + 0.01);
     float synth_noise = (hash13(synth_pos) - 0.5) * 0.1;
     block_color.rgb += vec3(synth_noise);
-    block_color.rgb = clamp(block_color.rgb, vec3(0.0), vec3(1.0));
+    block_color.rgb = clamp(block_color.rgb * 0.9, vec3(0.0), vec3(1.0));
 
     float block_luma = luma(tint_color.rgb);
 
@@ -75,7 +77,7 @@ void main() {
 
     float shadow_c = abs((light_mix * 2.0) - 1.0);
 
-    vec3 real_light = computeRealLightDH(omni_light * 1.25, direct_light_color, direct_light_strength * 1.1, shadow_c, final_candle_color, rainStrength);
+    vec3 real_light = computeRealLightDH(omni_light, direct_light_color, direct_light_strength, shadow_c, final_candle_color, rainStrength);
 
     block_color.rgb *= mix(real_light, vec3(1.0), nightVision * 0.125);
     block_color.rgb *= mix(vec3(1.0, 1.0, 1.0), vec3(NV_COLOR_R, NV_COLOR_G, NV_COLOR_B), nightVision);

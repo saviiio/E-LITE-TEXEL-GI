@@ -1,13 +1,13 @@
-/* MakeUp - LITE shaders 4.9 - volumetric_clouds.glsl
+/* MakeUp - E-LITE shaders 5 - volumetric_clouds.glsl
 Volumetric light - MakeUp implementation
 */
 
-#if VOL_LIGHT == 2 && !defined FSR
+#if VOL_LIGHT == 2
 
     #define diagonal3(m) vec3((m)[0].x, (m)[1].y, m[2].z)
 
     vec3 get_volumetric_pos(vec3 shadow_pos) {
-        if(fragment_cull()) return vec3(0.0);
+        //if(fragment_cull()) return vec3(0.0);
         shadow_pos = mat3(shadowModelView) * shadow_pos + shadowModelView[3].xyz;
         shadow_pos = diagonal3(shadowProjection) * shadow_pos + shadowProjection[3].xyz;
         float distb = length(shadow_pos.xy);
@@ -20,7 +20,7 @@ Volumetric light - MakeUp implementation
     }
 
     float get_volumetric_light(float dither, float view_distance, mat4 modeli_times_projectioni) {
-        if(fragment_cull()) return 0.0;
+        //if(fragment_cull()) return 0.0;
         float light = 0.0;
 
         float current_depth;
@@ -55,7 +55,7 @@ Volumetric light - MakeUp implementation
     #if defined COLORED_SHADOW
 
         vec3 get_volumetric_color_light(float dither, float view_distance, mat4 modeli_times_projectioni) {
-            if(fragment_cull()) return vec3(0.0);
+            //if(fragment_cull()) return vec3(0.0);
             float light = 0.0;
 
             float current_depth;
@@ -110,13 +110,9 @@ Volumetric light - MakeUp implementation
         
     #endif
 
-#elif (VOL_LIGHT == 2 && defined FSR) || VOL_LIGHT == 1
+#elif VOL_LIGHT == 1
 
     float ss_godrays(float dither) {
-        if(fragment_cull() || any(greaterThan(texcoord, vec2(RENDER_SCALE))) || any(lessThan(texcoord, vec2(0.0)))) {
-            return 0.0;
-        }
-
         float light = 0.0;
         float comp = 1.0 - (near / (far * far));
 
@@ -126,16 +122,13 @@ Volumetric light - MakeUp implementation
         float depth;
 
         for (int i = 0; i < CHEAP_GODRAY_SAMPLES; i++) {
-            if (any(greaterThan(dither2d, vec2(RENDER_SCALE))) || any(lessThan(dither2d, vec2(0.0)))) {
-                break; 
-            }
             depth = texture2D(depthtex1, dither2d).x;
             dither2d += ray_step;
             light += step(comp, depth);
         }
 
         #ifndef THE_END
-            return light / float(CHEAP_GODRAY_SAMPLES) * 1.25;
+            return light / float(CHEAP_GODRAY_SAMPLES) / day_blend_float(0.75, 1.0, 1.0);
         #else
             return light / float(CHEAP_GODRAY_SAMPLES);
         #endif

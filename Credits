@@ -34,6 +34,11 @@ Some of the code is inspired by the ideas presented below:
 
 - Blocky clouds were inspired by rre36's Nostalgia Shader, however, no code was used from said shader.
 
+- Text render by sixthsurge:
+  https://discord.com/channels/237199950235041794/525510804494221312/1034533866951684187
+  Based on Monocraft by IdreesInc:
+  https://github.com/IdreesInc/Monocraft
+
 ------
 
 If any functions were listed here, and are no longer listed,

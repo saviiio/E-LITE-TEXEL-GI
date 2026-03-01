@@ -1,23 +1,23 @@
-/* __   ______________
-  / /  /  _/_  __/ __/
- / /___/ /  / / / _/
-/____/___/ /_/ /___/
+/* ____    __   ______________
+  / ______/ /  /  _/_  __/ __/
+ / _//___/ /___/ /  / / / _/
+/___/   /____/___/ /_/ /___/
 
-LITE shaders 4.9 - get_sky.glsl
+E-LITE shaders 5 - get_sky.glsl
 Sky render. - Renderização do céu. 
 */
 
 vec3 sky_color;
 
 #if AA_TYPE > 0
-    float dither = shifted_dither13(gl_FragCoord.xy);
+    float dither = shifted_semiblue(gl_FragCoord.xy);
 #else
     float dither = dither13(gl_FragCoord.xy);
 #endif
 
 dither = (dither - .5) * 0.03125;
 
-#if ((COLOR_SCHEME == 8 && SIMPLE_SKY == 0) || COLOR_SCHEME == 12) && !defined UNKNOWN_DIM // LITE Realistic Plus            
+#if ((COLOR_SCHEME == 2 && SIMPLE_SKY == 0) || COLOR_SCHEME == 5) && !defined UNKNOWN_DIM // LITE Realistic Plus            
     vec4 fragpos = gbufferProjectionInverse * (vec4(gl_FragCoord.xy * vec2(pixel_size_x, pixel_size_y) / RENDER_SCALE, gl_FragCoord.z, 1.0) * 2.0 - 1.0);
     vec3 nfragpos = normalize(fragpos.xyz);
     float n_u = clamp(dot(nfragpos, up_vec) + 0.1 + dither, 0.0, 1.0);
@@ -41,7 +41,8 @@ dither = (dither - .5) * 0.03125;
 
     vec3 temp_sky_color = mix(current_mid_sky_color * biome_sky, current_hi_sky_color * biome_sky, t1);
     sky_color = mix(current_low_sky_color * biome_sky_low, temp_sky_color, t2);
-#elif COLOR_SCHEME == 11 // Vanilla
+    sky_color += dither * 3.0 * luma(sky_color);
+#elif COLOR_SCHEME == 4 // Vanilla
     vec4 fragpos =
         gbufferProjectionInverse *
         (vec4(gl_FragCoord.xy * vec2(pixel_size_x, pixel_size_y) / RENDER_SCALE, gl_FragCoord.z, 1.0) * 2.0 - 1.0);
@@ -71,7 +72,11 @@ dither = (dither - .5) * 0.03125;
     vec3 nfragpos = normalize(fragpos.xyz);
     float n_u = clamp(dot(nfragpos, up_vec) + dither, 0.0, 1.0);
     
-    sky_color = mix(low_sky_color, hi_sky_color, smoothstep(0.0, 1.0, pow(n_u, 0.333)));
+    #if COLOR_SCHEME == 6
+        sky_color = mix(low_sky_color, hi_sky_color, smoothstep(0.0, 1.0, pow(n_u, 0.25)));
+    #else
+        sky_color = mix(low_sky_color, hi_sky_color, smoothstep(0.0, 1.0, pow(n_u, 0.25)));
+    #endif
     sky_color = xyz_to_rgb(sky_color);
 #endif
 

@@ -8,12 +8,28 @@ uniform mat4 shadowProjectionInverse;
 uniform mat4 shadowModelView;
 uniform mat4 shadowModelViewInverse;
 
+#if defined SHADOW_CASTING && SHADOW_LOCK > 0 && !defined NETHER
+    uniform vec3 shadowLightPosition;
+    uniform mat4 gbufferModelViewInverse;
+    uniform mat4 gbufferModelView;
+#endif
+
 /* Ins / Outs */
 
 varying vec2 texcoord;
 varying float is_noshadow;
 varying vec3 worldPos;
 varying float is_water;
+
+#if defined SHADOW_CASTING && SHADOW_LOCK > 0 && !defined NETHER
+    varying vec3 vWorldPos;
+    varying vec3 vNormal;
+    varying vec3 vBias;
+#endif
+
+#if defined SHADOW_CASTING && SHADOW_LOCK > 0 && !defined NETHER
+    #include "/lib/shadow_vertex.glsl"
+#endif
 
 attribute vec4 mc_Entity;
 
@@ -27,6 +43,13 @@ void main() {
 
     vec4 positions = shadowModelViewInverse * shadowProjectionInverse * ftransform();
     worldPos = positions.xyz;
+    vec3 normal = gl_NormalMatrix * gl_Normal;
+    vec3 shadow_pos;
+    float shadow_diffuse;
+
+    #if defined SHADOW_CASTING && SHADOW_LOCK > 0 && !defined NETHER
+        #include "/src/shadow_src_vertex.glsl"
+    #endif
 
     float dist = length(gl_Position.xy);
     float distortFactor = dist * SHADOW_DIST + (1.0 - SHADOW_DIST);
@@ -45,5 +68,11 @@ void main() {
         if(mc_Entity.x == ENTITY_WATER) {
             is_water = 1.0;
         }
+    #endif
+
+    #if defined SHADOW_CASTING && SHADOW_LOCK > 0 && !defined NETHER
+        vWorldPos = position.xyz;
+        vNormal = shadow_world_normal;
+        vBias = bias;
     #endif
 }

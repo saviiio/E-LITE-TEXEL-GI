@@ -1,5 +1,5 @@
 #version 120
-/* MakeUp - LITE shaders 4.9 - composite2.fsh
+/* MakeUp - E-LITE shaders 5 - composite2.fsh
 Render: Antialiasing
 
 Javier Garduño - GNU Lesser General Public License v3.0

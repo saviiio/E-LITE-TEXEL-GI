@@ -1,5 +1,5 @@
 #version 120
-/* MakeUp - LITE shaders 4.9 - gbuffers_hand_water.vsh
+/* MakeUp - E-LITE shaders 5 - gbuffers_hand_water.vsh
 Render: Translucent hand objects
 
 Javier Garduño - GNU Lesser General Public License v3.0

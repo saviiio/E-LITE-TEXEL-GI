@@ -1,5 +1,5 @@
 #version 120
-/* MakeUp - LITE shaders 4.9 - gbuffers_damagedblock.fsh
+/* MakeUp - E-LITE shaders 5 - gbuffers_damagedblock.fsh
 Render: Damaged block effect
 
 Javier Garduño - GNU Lesser General Public License v3.0

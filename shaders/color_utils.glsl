@@ -1,4 +1,4 @@
-/* MakeUp - LITE shaders 4.7.3 - color_utils.glsl
+/* MakeUp - E-LITE shaders 5 - color_utils.glsl
 Usefull data for color manipulation.
 
 Javier Garduño - GNU Lesser General Public License v3.0
@@ -138,7 +138,7 @@ uniform vec3 skyColor;
     #define HORIZON_NIGHT_COLOR vec3(0.025, 0.035, 0.05) * NIGHT_BRIGHT_PHASE
 
     #define WATER_COLOR vec3(0.03098, 0.22990, 0.41313)
-#elif COLOR_SCHEME == 8  // LITE Realistic Plus (3 color layers)
+#elif COLOR_SCHEME == 2  // LITE Realistic Plus (3 color layers)
     #define OMNI_TINT 0.5
     #define LIGHT_SUNSET_COLOR vec3(0.6, 0.27, 0.145)
     #define LIGHT_DAY_COLOR vec3(1.0, 0.8, 0.75)
@@ -202,7 +202,7 @@ uniform vec3 skyColor;
     #define HORIZON_NIGHT_COLOR vec3(0.02, 0.03, 0.04) * NIGHT_BRIGHT_PHASE
 
     #define WATER_COLOR vec3(0.1, 0.1, 0.15)
-#elif COLOR_SCHEME == 11  // LITE Vanilla (Very hard too simulate Vanilla omg)
+#elif COLOR_SCHEME == 4  // LITE Vanilla (Very hard too simulate Vanilla omg)
     #define OMNI_TINT 1.0
 
     #define LIGHT_SUNSET_COLOR vec3(0.66, 0.5, 0.5)
@@ -218,7 +218,7 @@ uniform vec3 skyColor;
     #define HORIZON_NIGHT_COLOR saturate(fogColor, day_blend_float(0.0, 0.0, 0.6)) * day_blend_float(1.5, 0.35, 0.2) * NIGHT_BRIGHT_PHASE
 
     #define WATER_COLOR vec3(0.0314, 0.1373, 0.4784)
-#elif COLOR_SCHEME == 12  // LITE Cursed
+#elif COLOR_SCHEME == 5  // LITE Cursed
     #define OMNI_TINT 1.0
 
     #undef  MID_SUNSET_COLOR // Avoiding error in Optifine, do not remove undef!

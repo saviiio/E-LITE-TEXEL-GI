@@ -1,9 +1,9 @@
-/* __   ______________
-  / /  /  _/_  __/ __/
- / /___/ /  / / / _/
-/____/___/ /_/ /___/
+/* ____    __   ______________
+  / ______/ /  /  _/_  __/ __/
+ / _//___/ /___/ /  / / / _/
+/___/   /____/___/ /_/ /___/
 
-LITE shaders 4.9 - biome_sky.glsl #include "/lib/biome_sky.glsl"
+E-LITE shaders 5 - biome_sky.glsl #include "/lib/biome_sky.glsl"
 Biome-based sky color calculation. Cálculo de cores do céu baseado em bioma. */
 
 uniform float swamp;
@@ -76,7 +76,7 @@ float taiga_snow = clamp(taiga + snow + hill, 0.0, 1.0); // Pre-calculated
     float swamp_fog_base = mix(1.0, 0.333, swamp);
     float swamp_fog = mix(swamp_fog_base, 1.0, rainStrength);
 
-    float snow_fog_dry = mix(1.0, 0.2, taiga_snow);
+    float snow_fog_dry = mix(1.0, 0.4, taiga_snow);
     float snow_fog_wet = mix(1.0, 0.5, taiga_snow);
     float snow_fog = mix(snow_fog_dry, snow_fog_wet, rainStrength);
 

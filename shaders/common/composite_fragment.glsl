@@ -12,7 +12,6 @@ const bool colortex1MipmapEnabled = true;
 #endif
 
 /* Uniforms */
-
 uniform sampler2D colortex1;
 uniform float far;
 uniform float near;
@@ -85,13 +84,10 @@ varying float exposure;
 #include "/lib/fps_correction.glsl"
 #include "/lib/basic_utils.glsl"
 #include "/lib/depth.glsl"
-
-#ifdef BLOOM
-    #include "/lib/luma.glsl"
-#endif
+#include "/lib/luma.glsl"
 
 #define FRAGMENT
-#include "/lib/downscale.glsl"
+//#include "/lib/downscale.glsl"
 
 #if (VOL_LIGHT == 1 || (VOL_LIGHT == 2 && defined FSR)) && !defined NETHER
     #include "/lib/dither.glsl"
@@ -120,40 +116,44 @@ void main() {
         #define COLOR_CORRECTION day_blend(vec3(1.0, 0.8, 1.0), vec3(1.0), vec3(1.0, 0.6, 1.0))
     #else
         #define NIGHT_CORRECTION day_blend_float(0.5, 0.75, 10.0)
-        #define COLOR_CORRECTION day_blend(vec3(1.0, 0.8, 1.0), vec3(1.0), vec3(1.0, 0.6, 1.0))
+        #define COLOR_CORRECTION day_blend(vec3(1.0, 0.8, 1.0), vec3(2.0), vec3(1.0, 0.6, 1.0))
     #endif
 
     // Underwater fog
     // Pre-calculating values.
     float water_absorption_exponent_val = WATER_FOG + (WATER_ABSORPTION * 4.0);
     float eye_brightness_scaled_val = (eye_bright_smooth.y * .8 + 48.0) * 0.004166666666666667;
-    vec3 water_light_color_base = NIGHT_CORRECTION * WATER_COLOR * COLOR_CORRECTION * direct_light_strength;
+    vec3 water_light_color_base = NIGHT_CORRECTION * saturate(WATER_COLOR, mix(1.0, 0.25, rainStrength)) * COLOR_CORRECTION * direct_light_strength;
 
-    if(isEyeInWater == 1) {
-        float water_absorption = clamp(-pow((-linear_d + 1.0), water_absorption_exponent_val) + 1.0, 0.0, 1.0);
+    if (isEyeInWater == 1) {
+        float x = clamp(1.0 - linear_d, 0.0, 1.0);
+        float water_absorption = 1.0 - fastpow(x, water_absorption_exponent_val);
 
-        block_color.rgb =
-            mix(block_color.rgb, water_light_color_base * eye_brightness_scaled_val, water_absorption);
+        block_color.rgb = mix(block_color.rgb, water_light_color_base * eye_brightness_scaled_val, water_absorption);
 
-    } else if(isEyeInWater == 2) {
-        block_color = mix(block_color, vec4(1.0, .1, 0.0, 1.0), clamp(sqrt(linear_d * (far * 0.125)), 0.0, 1.0));
+    } else if (isEyeInWater == 2) {
+        float lava_f = clamp(linear_d * (far * 0.125), 0.0, 1.0);
+        block_color = mix(block_color, vec4(1.0, 0.1, 0.0, 1.0), sqrt(lava_f));
     }
 
     #if MC_VERSION >= 11900
-        if((blindness > .01 || darknessFactor > .01) && linear_d > 0.999) {
-            block_color.rgb = vec3(0.0);
+        if (blindness > .01 || darknessFactor > .01) {
+            float mask = step(0.999, linear_d);
+            block_color.rgb *= 1.0 - mask;
         }
     #else
-        if(blindness > .01 && linear_d > 0.999) {
-            block_color.rgb = vec3(0.0);
+        if (blindness > .01) {
+            float mask = step(0.999, linear_d);
+            block_color.rgb *= 1.0 - mask;
         }
     #endif
+
 
     #if (VOL_LIGHT == 1 && !defined NETHER) || (VOL_LIGHT == 2 && !defined NETHER)
         #if AA_TYPE > 0
             float dither = shifted_eclectic_r_dither(gl_FragCoord.xy);
         #else
-            float dither = r_dither(gl_FragCoord.xy);
+            float dither = eclectic_r_dither(gl_FragCoord.xy);
         #endif
     #endif
 
@@ -195,9 +195,8 @@ void main() {
             vol_intensity *= dot(view_vector, intermediate_vector);
             vol_intensity =
                 pow(clamp(vol_intensity, 0.0, 1.0), vol_mixer) * 0.5 * clamp(abs(light_mix * 3.0 - 1.0), 0.0, 1.0);
-            vol_intensity *= 0.666;
             block_color.rgb =
-                mix(block_color.rgb, vol_light_color * vol_light, vol_intensity * vol_light * (1.0 - rainStrength));
+                mix(block_color.rgb, vol_light_color * vol_light, vol_intensity * vol_light * clamp(1.25 - rainStrength, 0.0, 1.0));
         #endif
     #endif
 
@@ -247,22 +246,25 @@ void main() {
     #endif
 
     #ifdef BLOOM
-        // Bloom source
-        float bloom_luma;
-        if(fragment_cull()){
-            bloom_luma = 0.0;
-        } else {
-            bloom_luma = smoothstep(0.85, 1.0, luma(block_color.rgb * exposure)) * 0.5;
-        }
-        block_color = clamp(block_color, vec4(0.0), vec4(vec3(50.0), 1.0));     
-        /* DRAWBUFFERS:146 */
+        float bloom_luma = smoothstep(0.85, 1.0, luma(block_color.rgb * exposure)) * 0.5;
+
+        block_color = clamp(block_color, vec4(0.0), vec4(50.0, 50.0, 50.0, 1.0));
+        
+        /* DRAWBUFFERS:1246 */
         gl_FragData[0] = block_color;
         gl_FragData[1] = block_color * bloom_luma;
-        gl_FragData[2] = vec4(exposure, 0.0, 0.0, 0.0);
+        #if SSR_TYPE > -1 || MATERIAL_GLOSS > 1
+            gl_FragData[2] = block_color;
+        #endif
+        gl_FragData[3] = vec4(exposure, 0.0, 0.0, 0.0);
     #else
-        block_color = clamp(block_color, vec4(0.0), vec4(vec3(50.0), 1.0));
-        /* DRAWBUFFERS:16 */
+        block_color = clamp(block_color, vec4(0.0), vec4(50.0, 50.0, 50.0, 1.0));
+        
+        /* DRAWBUFFERS:146 */
         gl_FragData[0] = block_color;
-        gl_FragData[1] = vec4(exposure, 0.0, 0.0, 0.0);
+        #if SSR_TYPE > -1 || MATERIAL_GLOSS > 1
+            gl_FragData[1] = block_color;
+        #endif
+        gl_FragData[2] = vec4(exposure, 0.0, 0.0, 0.0);
     #endif
 }

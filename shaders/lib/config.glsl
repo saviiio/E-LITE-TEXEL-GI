@@ -1,4 +1,4 @@
-/* MakeUp - LITE shaders 4.9 - config.glsl
+/* MakeUp - E-LITE shaders 5 - config.glsl
 Config variables (DO NOT DELETE ANY #define)
 
 Javier Garduño - GNU Lesser General Public License v3.0
@@ -65,6 +65,9 @@ Javier Garduño - GNU Lesser General Public License v3.0
 #define ENTITY_RAIL 9014.0
 #define ENTITY_END_FRAME 9015.0
 
+// Season
+#define SEASONABLE 8000.0
+
 // Other constants
 #define ZENITH_SKY_RAIN_COLOR vec3(0.7, 0.85, 1.0)
 #define HORIZON_SKY_RAIN_COLOR vec3(0.35 , 0.425, 0.5)
@@ -90,6 +93,21 @@ Javier Garduño - GNU Lesser General Public License v3.0
 #endif
 
 #define FOG_ACTIVE // Toggle fog
+#define NEAR_FOG // Toggle near fog
+#define FOG_TINT 0 // [0 1 2]
+
+// MISC
+#define SELECTION_LINE 2 // [0 1 2 3]
+
+#if SELECTION_LINE == 3
+  #define RGB_LINE
+#endif
+
+//#define SEASONS // Adds dynamic seasons to game.
+#define SEASON_LENGTH 7 // [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24] Sesaon legngth in days (24000 ticks)
+#define TITLE // Adds an title when shader starts.
+#define END_PORTAL // Enables custom end portal by shader.
+
 #define NETHER_FOG_DISTANCE 0 // [0 1] // Sets Nether fog distance to half of the render distance (maximum of 96 blocks)
 #define ACERCADE 4 // [1 2 3 4 5 6 7]
 #define WAVING 1 // [0 1] Makes objects like leaves or grass move in the wind (Low perfomance cost)
@@ -97,22 +115,21 @@ Javier Garduño - GNU Lesser General Public License v3.0
 #define AO 0  // [0 1] Turn on for enhanced ambient occlusion (Medium performance cost).
 #define VANILLA_AO 1 // [0 1] Turn on for vanilla ambient occlusion (Faster than main AO).
 #define REFRACTION 1  // [0 1] Activate refractions.
-#define AOSTEPS 2.0 // [2.0 3.0 4.0 5.0 6.0 7.0 8.0 10.0] How many samples are taken for AO (High performance cost, Vanilla AO does not use it).
-#define AO_STRENGTH 1.0 // [0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.66 0.70 0.75 0.80 0.85 0.90 0.95 1.0 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.0] Ambient occlusion strength (strength NOT affect performance).
+#define AOSTEPS 4.0 // [2.0 3.0 4.0 5.0 6.0 7.0 8.0 10.0] How many samples are taken for AO (High performance cost, Vanilla AO does not use it).
+#define AO_STRENGTH 1.0 // [0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.66 0.70 0.75 0.80 0.85 0.90 0.95 1.0 1.05 1.10 1.15 1.20 1.25 1.30] Ambient occlusion strength (strength does NOT affect performance).
 #define AA_TYPE 3 // [0 1 2 3]  No: Disable antialiasing (not recommended). Denoise only: Supersampling is only used to eliminate noise. TAA: Enable antialiasing (Recommended). Sharp TAA: A subtle sharpening effect is used on the TAA. (Low-Medium perfomance cost)
-//#define FXAA // Enables FXAA, very helpful especially on low resolutions.
-//#define FSR // Enables FSR 1.0 for upscaling.
+#define FXAA // Enables FXAA, very helpful especially on low resolutions.
 #define MOTION_BLUR // Turn on motion blur (Low perfomance cost)
 #define MOTION_BLUR_STRENGTH 0.75 // [0.5 0.75 1.0 1.5 2.0 2.5 3.0 3.5 4.0] Set Motion blur strength. Lower framerate -> Lower strength and vice versa is recommended.
 #define MOTION_BLUR_SAMPLES 4.0 // [2.0 3.0 4.0 5.0 6.0 7.0 8.0] Motion blur samples 
 #define SUN_REFLECTION 2 // [0 1 2] Enable sun (or moon) reflection on water and glass (Very low perfomance cost)
 
-#define SHADOW_TYPE 1 // [0 1] Sets the shadow type
+#define SHADOW_TYPE 1 // [0 1 2] Sets the shadow type
 #define SHADOW_BLUR 3.0 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 3.0 3.1 3.2 3.3 3.4 3.5 3.6 3.7 3.8 3.9 4.0]  Shadow blur intensity
 #define COLORED_SHADOW // Attempts to tint the shadow of translucent objects.
 #define WATER_ABSORPTION 0.05 // [0.00 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.10 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.20 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 0.30 0.31 0.32 0.33 0.34 0.35 0.36 0.37 0.38 0.39 0.40 0.41 0.42 0.43 0.44 0.45 0.46 0.47 0.48 0.49 0.50] Sets how much light the water absorbs. Low levels make the water more transparent. High levels make it more opaque.
-#define WATER_FOG 4.5 // [0.0 0.5 1.0 1.5 2.0 2.5 3.0 3.5 4.0 4.5 5.0 5.5 6.0 6.5 7.0 7.5 8.0 8.5 9.0 9.5 10.0 10.5 11.0 11.5 12.0 12.5 13.0 13.5 14.0 14.5 15.0 15.5 16.0 16.5 17.0 17.5 18.0 18.5 19.0 19.5 20.0 20.5 21.0 21.5 22.0 22.5 23.0 23.5 24.0 24.5 25.0 25.5 26.0 26.5 27.0 27.5 28.0 28.5 29.0 29.5 30.0 30.5 31.0 31.5 32.0 32.5 33.0 33.5 34.0 34.5 35.0 35.5 36.0 36.5 37.0 37.5 38.0 38.5 39.0 39.5 40.0]
-#define COLOR_SCHEME 8 // [0 1 2 3 4 5 6 7 8 9 10 11 12 99] Ethereal: Old default theme. New shoka: Reinterpretation of a classic. Shoka: The classic. Legacy: Very old default. Captain: A cold preset of stylish colors. Psycodelic: Remaster of old vivid scheme. Cocoa: Warm theme. Realistic+: Realistic sky colors. Realistic (pol): Realistic but simulates pollution. Vanilla: Vanilla colors. LITE Legacy: LITE 3.3 colors. Custom: Choose your colors in effects.
+#define WATER_FOG 6.0 // [0.0 0.5 1.0 1.5 2.0 2.5 3.0 3.5 4.0 4.5 5.0 5.5 6.0 6.5 7.0 7.5 8.0 8.5 9.0 9.5 10.0 10.5 11.0 11.5 12.0 12.5 13.0 13.5 14.0 14.5 15.0 15.5 16.0 16.5 17.0 17.5 18.0 18.5 19.0 19.5 20.0 20.5 21.0 21.5 22.0 22.5 23.0 23.5 24.0 24.5 25.0 25.5 26.0 26.5 27.0 27.5 28.0 28.5 29.0 29.5 30.0 30.5 31.0 31.5 32.0 32.5 33.0 33.5 34.0 34.5 35.0 35.5 36.0 36.5 37.0 37.5 38.0 38.5 39.0 39.5 40.0]
+#define COLOR_SCHEME 2 // [1 2 3 4 5 6 99] New shoka: Reinterpretation of a classic. Realistic+: Realistic sky colors. Vanilla: Vanilla colors. LITE Legacy: LITE 3.3 colors. Custom: Choose your colors in effects.
 #define USE_WATER_TEXTURE -1 // [-1 0 1] Enable or disable resource pack water texture. It does not work properly in 1.12. In that case the default value is recommended.
 #define CAUSTICS // Enables real-time water caustics.
 #define CAUSTICS_INTENSITY 1.0 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
@@ -134,6 +151,7 @@ Javier Garduño - GNU Lesser General Public License v3.0
 #define NIGHT_BRIGHT_RANGE 0.60 // [0.10 0.20 0.30 0.40 0.50 0.60 0.70 0.80 0.90 1.00 1.10 1.20] Difference between min and max values.
 #define V_CLOUDS 1 // [-1 0 1 2] Volumetric static: The clouds move, but they keep their shape. Volumetric dynamic: Clouds change shape over time, a different cloud landscape every time (medium performance hit). Vanilla: Original vanilla clouds.
 #define CIRRUS // Adds a 2nd layer of cirrus clouds in the sky.
+#define AURORA 0 // [0 1 2] Adds an aurora on night sky.
 #define USE_CLOUD_VOL_STYLE -1 // [-1 0 1] Set the volumetric cloud style.
 #define CLOUD_DENSITY 1.0 // [0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8]
 
@@ -182,19 +200,19 @@ Javier Garduño - GNU Lesser General Public License v3.0
 
 // #define DEBUG_MODE // Set debug mode.
 #define BLOCKLIGHT_TEMP 1 // [-1 0 1 2 3 4 5] Set blocklight temperature
-#define MATERIAL_GLOSS // A effect that adds some ability to reflect direct light on some blocks. It is most noticeable on metals and luminous objects. (Low-Medium perfomance cost)
+#define MATERIAL_GLOSS 1 // [0 1 2 3] // A effect that adds some ability to reflect direct light on some blocks. It is most noticeable on metals and luminous objects. (Low-Medium perfomance cost)
 // #define SIMPLE_AUTOEXP // Turns off automatic exposure.
 #define DYN_HAND_LIGHT // Toggle the fake dynamic light
 
 // Sharpness
-#define SHARP_FORCE 0.95 // [0.0 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.2 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 0.3 0.31 0.32 0.33 0.34 0.35 0.36 0.37 0.38 0.39 0.4 0.41 0.42 0.43 0.44 0.45 0.46 0.47 0.48 0.49 0.5 0.51 0.52 0.53 0.54 0.55 0.56 0.57 0.58 0.59 0.6 0.61 0.62 0.63 0.64 0.65 0.66 0.67 0.68 0.69 0.7 0.71 0.72 0.73 0.74 0.75 0.76 0.77 0.78 0.79 0.8 0.81 0.82 0.83 0.84 0.85 0.86 0.87 0.88 0.89 0.9 0.91 0.92 0.93 0.94 0.95 0.96 0.97 0.98 0.99 1.0 1.0 1.01 1.02 1.03 1.04 1.05 1.06 1.07 1.08 1.09 1.1 1.11 1.12 1.13 1.14 1.15 1.16 1.17 1.18 1.19 1.2 1.21 1.22 1.23 1.24 1.25 1.26 1.27 1.28 1.29 1.3 1.31 1.32 1.33 1.34 1.35 1.36 1.37 1.38 1.39 1.4 1.41 1.42 1.43 1.44 1.45 1.46 1.47 1.48 1.49 1.5 1.51 1.52 1.53 1.54 1.55 1.56 1.57 1.58 1.59 1.6 1.61 1.62 1.63 1.64 1.65 1.66 1.67 1.68 1.69 1.7 1.71 1.72 1.73 1.74 1.75 1.76 1.77 1.78 1.79 1.8 1.81 1.82 1.83 1.84 1.85 1.86 1.87 1.88 1.89 1.9 1.91 1.92 1.93 1.94 1.95 1.96 1.97 1.98 1.99 2.0]
+#define SHARP_FORCE 1.0 // [0.0 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.2 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 0.3 0.31 0.32 0.33 0.34 0.35 0.36 0.37 0.38 0.39 0.4 0.41 0.42 0.43 0.44 0.45 0.46 0.47 0.48 0.49 0.5 0.51 0.52 0.53 0.54 0.55 0.56 0.57 0.58 0.59 0.6 0.61 0.62 0.63 0.64 0.65 0.66 0.67 0.68 0.69 0.7 0.71 0.72 0.73 0.74 0.75 0.76 0.77 0.78 0.79 0.8 0.81 0.82 0.83 0.84 0.85 0.86 0.87 0.88 0.89 0.9 0.91 0.92 0.93 0.94 0.95 0.96 0.97 0.98 0.99 1.0 1.0 1.01 1.02 1.03 1.04 1.05 1.06 1.07 1.08 1.09 1.1 1.11 1.12 1.13 1.14 1.15 1.16 1.17 1.18 1.19 1.2 1.21 1.22 1.23 1.24 1.25 1.26 1.27 1.28 1.29 1.3 1.31 1.32 1.33 1.34 1.35 1.36 1.37 1.38 1.39 1.4 1.41 1.42 1.43 1.44 1.45 1.46 1.47 1.48 1.49 1.5 1.51 1.52 1.53 1.54 1.55 1.56 1.57 1.58 1.59 1.6 1.61 1.62 1.63 1.64 1.65 1.66 1.67 1.68 1.69 1.7 1.71 1.72 1.73 1.74 1.75 1.76 1.77 1.78 1.79 1.8 1.81 1.82 1.83 1.84 1.85 1.86 1.87 1.88 1.89 1.9 1.91 1.92 1.93 1.94 1.95 1.96 1.97 1.98 1.99 2.0]
 
 // Saturation, Contrast, Brightness, Gamma, and Camera utils
 #define SATURATION 1.03 // [0.0 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.2 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 0.3 0.31 0.32 0.33 0.34 0.35 0.36 0.37 0.38 0.39 0.4 0.41 0.42 0.43 0.44 0.45 0.46 0.47 0.48 0.49 0.5 0.51 0.52 0.53 0.54 0.55 0.56 0.57 0.58 0.59 0.6 0.61 0.62 0.63 0.64 0.65 0.66 0.67 0.68 0.69 0.7 0.71 0.72 0.73 0.74 0.75 0.76 0.77 0.78 0.79 0.8 0.81 0.82 0.83 0.84 0.85 0.86 0.87 0.88 0.89 0.9 0.91 0.92 0.93 0.94 0.95 0.96 0.97 0.98 0.99 1.0 1.0 1.01 1.02 1.03 1.04 1.05 1.06 1.07 1.08 1.09 1.1 1.11 1.12 1.13 1.14 1.15 1.16 1.17 1.18 1.19 1.2 1.21 1.22 1.23 1.24 1.25 1.26 1.27 1.28 1.29 1.3 1.31 1.32 1.33 1.34 1.35 1.36 1.37 1.38 1.39 1.4 1.41 1.42 1.43 1.44 1.45 1.46 1.47 1.48 1.49 1.5 1.51 1.52 1.53 1.54 1.55 1.56 1.57 1.58 1.59 1.6 1.61 1.62 1.63 1.64 1.65 1.66 1.67 1.68 1.69 1.7 1.71 1.72 1.73 1.74 1.75 1.76 1.77 1.78 1.79 1.8 1.81 1.82 1.83 1.84 1.85 1.86 1.87 1.88 1.89 1.9 1.91 1.92 1.93 1.94 1.95 1.96 1.97 1.98 1.99 2.0]
 #define CONTRAST 1.02 // [0.0 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.2 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 0.3 0.31 0.32 0.33 0.34 0.35 0.36 0.37 0.38 0.39 0.4 0.41 0.42 0.43 0.44 0.45 0.46 0.47 0.48 0.49 0.5 0.51 0.52 0.53 0.54 0.55 0.56 0.57 0.58 0.59 0.6 0.61 0.62 0.63 0.64 0.65 0.66 0.67 0.68 0.69 0.7 0.71 0.72 0.73 0.74 0.75 0.76 0.77 0.78 0.79 0.8 0.81 0.82 0.83 0.84 0.85 0.86 0.87 0.88 0.89 0.9 0.91 0.92 0.93 0.94 0.95 0.96 0.97 0.98 0.99 1.0 1.0 1.01 1.02 1.03 1.04 1.05 1.06 1.07 1.08 1.09 1.1 1.11 1.12 1.13 1.14 1.15 1.16 1.17 1.18 1.19 1.2 1.21 1.22 1.23 1.24 1.25 1.26 1.27 1.28 1.29 1.3 1.31 1.32 1.33 1.34 1.35 1.36 1.37 1.38 1.39 1.4 1.41 1.42 1.43 1.44 1.45 1.46 1.47 1.48 1.49 1.5 1.51 1.52 1.53 1.54 1.55 1.56 1.57 1.58 1.59 1.6 1.61 1.62 1.63 1.64 1.65 1.66 1.67 1.68 1.69 1.7 1.71 1.72 1.73 1.74 1.75 1.76 1.77 1.78 1.79 1.8 1.81 1.82 1.83 1.84 1.85 1.86 1.87 1.88 1.89 1.9 1.91 1.92 1.93 1.94 1.95 1.96 1.97 1.98 1.99 2.0]
-#define BRIGHTNESS 1.12 // [0.0 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.2 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 0.3 0.31 0.32 0.33 0.34 0.35 0.36 0.37 0.38 0.39 0.4 0.41 0.42 0.43 0.44 0.45 0.46 0.47 0.48 0.49 0.5 0.51 0.52 0.53 0.54 0.55 0.56 0.57 0.58 0.59 0.6 0.61 0.62 0.63 0.64 0.65 0.66 0.67 0.68 0.69 0.7 0.71 0.72 0.73 0.74 0.75 0.76 0.77 0.78 0.79 0.8 0.81 0.82 0.83 0.84 0.85 0.86 0.87 0.88 0.89 0.9 0.91 0.92 0.93 0.94 0.95 0.96 0.97 0.98 0.99 1.0 1.0 1.01 1.02 1.03 1.04 1.05 1.06 1.07 1.08 1.09 1.1 1.11 1.12 1.13 1.14 1.15 1.16 1.17 1.18 1.19 1.2 1.21 1.22 1.23 1.24 1.25 1.26 1.27 1.28 1.29 1.3 1.31 1.32 1.33 1.34 1.35 1.36 1.37 1.38 1.39 1.4 1.41 1.42 1.43 1.44 1.45 1.46 1.47 1.48 1.49 1.5 1.51 1.52 1.53 1.54 1.55 1.56 1.57 1.58 1.59 1.6 1.61 1.62 1.63 1.64 1.65 1.66 1.67 1.68 1.69 1.7 1.71 1.72 1.73 1.74 1.75 1.76 1.77 1.78 1.79 1.8 1.81 1.82 1.83 1.84 1.85 1.86 1.87 1.88 1.89 1.9 1.91 1.92 1.93 1.94 1.95 1.96 1.97 1.98 1.99 2.0]
+#define BRIGHTNESS 1.1 // [0.0 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.2 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 0.3 0.31 0.32 0.33 0.34 0.35 0.36 0.37 0.38 0.39 0.4 0.41 0.42 0.43 0.44 0.45 0.46 0.47 0.48 0.49 0.5 0.51 0.52 0.53 0.54 0.55 0.56 0.57 0.58 0.59 0.6 0.61 0.62 0.63 0.64 0.65 0.66 0.67 0.68 0.69 0.7 0.71 0.72 0.73 0.74 0.75 0.76 0.77 0.78 0.79 0.8 0.81 0.82 0.83 0.84 0.85 0.86 0.87 0.88 0.89 0.9 0.91 0.92 0.93 0.94 0.95 0.96 0.97 0.98 0.99 1.0 1.0 1.01 1.02 1.03 1.04 1.05 1.06 1.07 1.08 1.09 1.1 1.11 1.12 1.13 1.14 1.15 1.16 1.17 1.18 1.19 1.2 1.21 1.22 1.23 1.24 1.25 1.26 1.27 1.28 1.29 1.3 1.31 1.32 1.33 1.34 1.35 1.36 1.37 1.38 1.39 1.4 1.41 1.42 1.43 1.44 1.45 1.46 1.47 1.48 1.49 1.5 1.51 1.52 1.53 1.54 1.55 1.56 1.57 1.58 1.59 1.6 1.61 1.62 1.63 1.64 1.65 1.66 1.67 1.68 1.69 1.7 1.71 1.72 1.73 1.74 1.75 1.76 1.77 1.78 1.79 1.8 1.81 1.82 1.83 1.84 1.85 1.86 1.87 1.88 1.89 1.9 1.91 1.92 1.93 1.94 1.95 1.96 1.97 1.98 1.99 2.0]
 #define GAMMA 1.0 // [0.0 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.2 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 0.3 0.31 0.32 0.33 0.34 0.35 0.36 0.37 0.38 0.39 0.4 0.41 0.42 0.43 0.44 0.45 0.46 0.47 0.48 0.49 0.5 0.51 0.52 0.53 0.54 0.55 0.56 0.57 0.58 0.59 0.6 0.61 0.62 0.63 0.64 0.65 0.66 0.67 0.68 0.69 0.7 0.71 0.72 0.73 0.74 0.75 0.76 0.77 0.78 0.79 0.8 0.81 0.82 0.83 0.84 0.85 0.86 0.87 0.88 0.89 0.9 0.91 0.92 0.93 0.94 0.95 0.96 0.97 0.98 0.99 1.0 1.0 1.01 1.02 1.03 1.04 1.05 1.06 1.07 1.08 1.09 1.1 1.11 1.12 1.13 1.14 1.15 1.16 1.17 1.18 1.19 1.2 1.21 1.22 1.23 1.24 1.25 1.26 1.27 1.28 1.29 1.3 1.31 1.32 1.33 1.34 1.35 1.36 1.37 1.38 1.39 1.4 1.41 1.42 1.43 1.44 1.45 1.46 1.47 1.48 1.49 1.5 1.51 1.52 1.53 1.54 1.55 1.56 1.57 1.58 1.59 1.6 1.61 1.62 1.63 1.64 1.65 1.66 1.67 1.68 1.69 1.7 1.71 1.72 1.73 1.74 1.75 1.76 1.77 1.78 1.79 1.8 1.81 1.82 1.83 1.84 1.85 1.86 1.87 1.88 1.89 1.9 1.91 1.92 1.93 1.94 1.95 1.96 1.97 1.98 1.99 2.0]
-#define VIBRANCE 0.17 // [0.0 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.2 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 0.3 0.31 0.32 0.33 0.34 0.35 0.36 0.37 0.38 0.39 0.4 0.41 0.42 0.43 0.44 0.45 0.46 0.47 0.48 0.49 0.5 0.51 0.52 0.53 0.54 0.55 0.56 0.57 0.58 0.59 0.6 0.61 0.62 0.63 0.64 0.65 0.66 0.67 0.68 0.69 0.7 0.71 0.72 0.73 0.74 0.75 0.76 0.77 0.78 0.79 0.8 0.81 0.82 0.83 0.84 0.85 0.86 0.87 0.88 0.89 0.9 0.91 0.92 0.93 0.94 0.95 0.96 0.97 0.98 0.99 1.0 1.0 1.01 1.02 1.03 1.04 1.05 1.06 1.07 1.08 1.09 1.1 1.11 1.12 1.13 1.14 1.15 1.16 1.17 1.18 1.19 1.2 1.21 1.22 1.23 1.24 1.25 1.26 1.27 1.28 1.29 1.3 1.31 1.32 1.33 1.34 1.35 1.36 1.37 1.38 1.39 1.4 1.41 1.42 1.43 1.44 1.45 1.46 1.47 1.48 1.49 1.5 1.51 1.52 1.53 1.54 1.55 1.56 1.57 1.58 1.59 1.6 1.61 1.62 1.63 1.64 1.65 1.66 1.67 1.68 1.69 1.7 1.71 1.72 1.73 1.74 1.75 1.76 1.77 1.78 1.79 1.8 1.81 1.82 1.83 1.84 1.85 1.86 1.87 1.88 1.89 1.9 1.91 1.92 1.93 1.94 1.95 1.96 1.97 1.98 1.99 2.0]
+#define VIBRANCE 0.15 // [0.0 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.2 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 0.3 0.31 0.32 0.33 0.34 0.35 0.36 0.37 0.38 0.39 0.4 0.41 0.42 0.43 0.44 0.45 0.46 0.47 0.48 0.49 0.5 0.51 0.52 0.53 0.54 0.55 0.56 0.57 0.58 0.59 0.6 0.61 0.62 0.63 0.64 0.65 0.66 0.67 0.68 0.69 0.7 0.71 0.72 0.73 0.74 0.75 0.76 0.77 0.78 0.79 0.8 0.81 0.82 0.83 0.84 0.85 0.86 0.87 0.88 0.89 0.9 0.91 0.92 0.93 0.94 0.95 0.96 0.97 0.98 0.99 1.0 1.0 1.01 1.02 1.03 1.04 1.05 1.06 1.07 1.08 1.09 1.1 1.11 1.12 1.13 1.14 1.15 1.16 1.17 1.18 1.19 1.2 1.21 1.22 1.23 1.24 1.25 1.26 1.27 1.28 1.29 1.3 1.31 1.32 1.33 1.34 1.35 1.36 1.37 1.38 1.39 1.4 1.41 1.42 1.43 1.44 1.45 1.46 1.47 1.48 1.49 1.5 1.51 1.52 1.53 1.54 1.55 1.56 1.57 1.58 1.59 1.6 1.61 1.62 1.63 1.64 1.65 1.66 1.67 1.68 1.69 1.7 1.71 1.72 1.73 1.74 1.75 1.76 1.77 1.78 1.79 1.8 1.81 1.82 1.83 1.84 1.85 1.86 1.87 1.88 1.89 1.9 1.91 1.92 1.93 1.94 1.95 1.96 1.97 1.98 1.99 2.0]
 
 #define EXPOSURE 1.0 // // [0.0 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.2 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 0.3 0.31 0.32 0.33 0.34 0.35 0.36 0.37 0.38 0.39 0.4 0.41 0.42 0.43 0.44 0.45 0.46 0.47 0.48 0.49 0.5 0.51 0.52 0.53 0.54 0.55 0.56 0.57 0.58 0.59 0.6 0.61 0.62 0.63 0.64 0.65 0.66 0.67 0.68 0.69 0.7 0.71 0.72 0.73 0.74 0.75 0.76 0.77 0.78 0.79 0.8 0.81 0.82 0.83 0.84 0.85 0.86 0.87 0.88 0.89 0.9 0.91 0.92 0.93 0.94 0.95 0.96 0.97 0.98 0.99 1.0 1.0 1.01 1.02 1.03 1.04 1.05 1.06 1.07 1.08 1.09 1.1 1.11 1.12 1.13 1.14 1.15 1.16 1.17 1.18 1.19 1.2 1.21 1.22 1.23 1.24 1.25 1.26 1.27 1.28 1.29 1.3 1.31 1.32 1.33 1.34 1.35 1.36 1.37 1.38 1.39 1.4 1.41 1.42 1.43 1.44 1.45 1.46 1.47 1.48 1.49 1.5 1.51 1.52 1.53 1.54 1.55 1.56 1.57 1.58 1.59 1.6 1.61 1.62 1.63 1.64 1.65 1.66 1.67 1.68 1.69 1.7 1.71 1.72 1.73 1.74 1.75 1.76 1.77 1.78 1.79 1.8 1.81 1.82 1.83 1.84 1.85 1.86 1.87 1.88 1.89 1.9 1.91 1.92 1.93 1.94 1.95 1.96 1.97 1.98 1.99 2.0]
 // #define DOF // Enables depth of field (Medium performance cost).
@@ -202,10 +220,11 @@ Javier Garduño - GNU Lesser General Public License v3.0
 #define RED 1.0 // [0.0 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.2 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 0.3 0.31 0.32 0.33 0.34 0.35 0.36 0.37 0.38 0.39 0.4 0.41 0.42 0.43 0.44 0.45 0.46 0.47 0.48 0.49 0.5 0.51 0.52 0.53 0.54 0.55 0.56 0.57 0.58 0.59 0.6 0.61 0.62 0.63 0.64 0.65 0.66 0.67 0.68 0.69 0.7 0.71 0.72 0.73 0.74 0.75 0.76 0.77 0.78 0.79 0.8 0.81 0.82 0.83 0.84 0.85 0.86 0.87 0.88 0.89 0.9 0.91 0.92 0.93 0.94 0.95 0.96 0.97 0.98 0.99 1.0 1.0 1.01 1.02 1.03 1.04 1.05 1.06 1.07 1.08 1.09 1.1 1.11 1.12 1.13 1.14 1.15 1.16 1.17 1.18 1.19 1.2 1.21 1.22 1.23 1.24 1.25 1.26 1.27 1.28 1.29 1.3 1.31 1.32 1.33 1.34 1.35 1.36 1.37 1.38 1.39 1.4 1.41 1.42 1.43 1.44 1.45 1.46 1.47 1.48 1.49 1.5 1.51 1.52 1.53 1.54 1.55 1.56 1.57 1.58 1.59 1.6 1.61 1.62 1.63 1.64 1.65 1.66 1.67 1.68 1.69 1.7 1.71 1.72 1.73 1.74 1.75 1.76 1.77 1.78 1.79 1.8 1.81 1.82 1.83 1.84 1.85 1.86 1.87 1.88 1.89 1.9 1.91 1.92 1.93 1.94 1.95 1.96 1.97 1.98 1.99 2.0]
 #define GREEN 1.0 // [0.0 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.2 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 0.3 0.31 0.32 0.33 0.34 0.35 0.36 0.37 0.38 0.39 0.4 0.41 0.42 0.43 0.44 0.45 0.46 0.47 0.48 0.49 0.5 0.51 0.52 0.53 0.54 0.55 0.56 0.57 0.58 0.59 0.6 0.61 0.62 0.63 0.64 0.65 0.66 0.67 0.68 0.69 0.7 0.71 0.72 0.73 0.74 0.75 0.76 0.77 0.78 0.79 0.8 0.81 0.82 0.83 0.84 0.85 0.86 0.87 0.88 0.89 0.9 0.91 0.92 0.93 0.94 0.95 0.96 0.97 0.98 0.99 1.0 1.0 1.01 1.02 1.03 1.04 1.05 1.06 1.07 1.08 1.09 1.1 1.11 1.12 1.13 1.14 1.15 1.16 1.17 1.18 1.19 1.2 1.21 1.22 1.23 1.24 1.25 1.26 1.27 1.28 1.29 1.3 1.31 1.32 1.33 1.34 1.35 1.36 1.37 1.38 1.39 1.4 1.41 1.42 1.43 1.44 1.45 1.46 1.47 1.48 1.49 1.5 1.51 1.52 1.53 1.54 1.55 1.56 1.57 1.58 1.59 1.6 1.61 1.62 1.63 1.64 1.65 1.66 1.67 1.68 1.69 1.7 1.71 1.72 1.73 1.74 1.75 1.76 1.77 1.78 1.79 1.8 1.81 1.82 1.83 1.84 1.85 1.86 1.87 1.88 1.89 1.9 1.91 1.92 1.93 1.94 1.95 1.96 1.97 1.98 1.99 2.0]
 #define BLUE 1.0 // [0.0 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.2 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 0.3 0.31 0.32 0.33 0.34 0.35 0.36 0.37 0.38 0.39 0.4 0.41 0.42 0.43 0.44 0.45 0.46 0.47 0.48 0.49 0.5 0.51 0.52 0.53 0.54 0.55 0.56 0.57 0.58 0.59 0.6 0.61 0.62 0.63 0.64 0.65 0.66 0.67 0.68 0.69 0.7 0.71 0.72 0.73 0.74 0.75 0.76 0.77 0.78 0.79 0.8 0.81 0.82 0.83 0.84 0.85 0.86 0.87 0.88 0.89 0.9 0.91 0.92 0.93 0.94 0.95 0.96 0.97 0.98 0.99 1.0 1.0 1.01 1.02 1.03 1.04 1.05 1.06 1.07 1.08 1.09 1.1 1.11 1.12 1.13 1.14 1.15 1.16 1.17 1.18 1.19 1.2 1.21 1.22 1.23 1.24 1.25 1.26 1.27 1.28 1.29 1.3 1.31 1.32 1.33 1.34 1.35 1.36 1.37 1.38 1.39 1.4 1.41 1.42 1.43 1.44 1.45 1.46 1.47 1.48 1.49 1.5 1.51 1.52 1.53 1.54 1.55 1.56 1.57 1.58 1.59 1.6 1.61 1.62 1.63 1.64 1.65 1.66 1.67 1.68 1.69 1.7 1.71 1.72 1.73 1.74 1.75 1.76 1.77 1.78 1.79 1.8 1.81 1.82 1.83 1.84 1.85 1.86 1.87 1.88 1.89 1.9 1.91 1.92 1.93 1.94 1.95 1.96 1.97 1.98 1.99 2.0]
-#define TONEMAPPING 1 // [0 1 2 3]
+#define TONEMAPPING 4 // [0 1 2 3 4]
 #define HDR // HDR
 #define DOF_HDR // HDR for DOF
 #define COLOR_BITS 10 // [8 10 16]
+#define SHADOW_LOCK 0 // [0 8 16 32 64 128]
 
 // Cinematic effects
 // #define VIGNETTE // Adds a vingette in screen.
@@ -216,8 +235,8 @@ Javier Garduño - GNU Lesser General Public License v3.0
 // Effects, fake effects and wind
 // #define FAKE_BLOOM // Increases brightness off luminous blocks for simulate bloom.
 #define WIND_FORCE 1.00 // [0.25 0.50 0.75 1.00 1.25 1.50 1.75 2.00 2.25 2.50 2.75 3.00 3.25 3.50 3.75 4.00]
-#define EMMISIVE_ORE // Turns on glowing ores.
-#define EMMISIVE_MATERIAL // Turns on glowing materials.
+#define EMISSIVE_ORE // Turns on glowing ores.
+#define EMISSIVE_MATERIAL // Turns on glowing materials.
 
 // Stars
 #define STAR_SLIDER 1 // [0 1 2] Turns on stars.
@@ -233,7 +252,7 @@ Javier Garduño - GNU Lesser General Public License v3.0
   #define PIXEL_SIZE ((viewHeight + viewWidth) / 750) // <- ALWAYS WILL HAVE PRORPOTIONAL PIXEL SIZE
 #endif
 
-// Information Utils LITE shaders LT49
+// Information Utils E-LITE shaders ELT5
 #define HOVER 0 // [0]
 #define VERSION 0 // [0]
 #define PROFILES 0 // [0]
@@ -241,29 +260,7 @@ Javier Garduño - GNU Lesser General Public License v3.0
 #define PERF_IMPACT 0 // [0]
 #define CREDITS 0 // [0]
 
-#define RENDER_SCALE_INT 85 // [50 58 67 76 85]
-
-#if RENDER_SCALE_INT == 85
-  #define RENDER_SCALE 0.85
-#elif RENDER_SCALE_INT == 76
-  #define RENDER_SCALE 0.76
-#elif RENDER_SCALE_INT == 67
-  #define RENDER_SCALE 0.67
-#elif RENDER_SCALE_INT == 58
-  #define RENDER_SCALE 0.58
-#elif RENDER_SCALE_INT == 50
-  #define RENDER_SCALE 0.50
-#endif
-
-#ifndef FSR
-  #undef RENDER_SCALE
-  #define RENDER_SCALE 1.0
-#endif
-
-#ifdef PS1_LIKE
-  #undef RENDER_SCALE
-  #define RENDER_SCALE 0.50
-#endif
+#define RENDER_SCALE 1.0
 
 // Custom colors
 #define LIGHT_SUNSET_COLOR_R 1 // [0.0 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.2 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 0.3 0.31 0.32 0.33 0.34 0.35 0.36 0.37 0.38 0.39 0.4 0.41 0.42 0.43 0.44 0.45 0.46 0.47 0.48 0.49 0.5 0.51 0.52 0.53 0.54 0.55 0.56 0.57 0.58 0.59 0.6 0.61 0.62 0.63 0.64 0.65 0.66 0.67 0.68 0.69 0.7 0.71 0.72 0.73 0.74 0.75 0.76 0.77 0.78 0.79 0.8 0.81 0.82 0.83 0.84 0.85 0.86 0.87 0.88 0.89 0.9 0.91 0.92 0.93 0.94 0.95 0.96 0.97 0.98 0.99 1.0 1.01 1.02 1.03 1.04 1.05 1.06 1.07 1.08 1.09 1.1 1.11 1.12 1.13 1.14 1.15 1.16 1.17 1.18 1.19 1.2 1.21 1.22 1.23 1.24 1.25 1.26 1.27 1.28 1.29 1.3 1.31 1.32 1.33 1.34 1.35 1.36 1.37 1.38 1.39 1.4 1.41 1.42 1.43 1.44 1.45 1.46 1.47 1.48 1.49 1.5]
@@ -359,11 +356,11 @@ Javier Garduño - GNU Lesser General Public License v3.0
   // Don't remove
 #endif
 
-#ifdef EMMISIVE_MATERIAL
+#ifdef EMISSIVE_MATERIAL
   // Don't remove
 #endif
 
-#ifdef EMMISIVE_ORE
+#ifdef EMISSIVE_ORE
   // Don't remove
 #endif
 
@@ -402,9 +399,9 @@ Javier Garduño - GNU Lesser General Public License v3.0
     #define CLOUD_PLANE_CENTER 305.0
     #define CLOUD_PLANE 219.0
   #else
-    #define CLOUD_PLANE_SUP 590.0
-    #define CLOUD_PLANE_CENTER 375.0
-    #define CLOUD_PLANE 319.0
+    #define CLOUD_PLANE_SUP 740.0
+    #define CLOUD_PLANE_CENTER 470.0
+    #define CLOUD_PLANE 420.0
   #endif
 #endif
 
@@ -457,10 +454,10 @@ const float sunPathRotation = -40.0; // [-80.0 -75.0 -70.0 -65.0 -60.0 -55.0 -50
 #define SUN_MUL 1.0 // [0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 #define MOON_MUL 1.0 // [0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 #define ASTRO_POWER 1.0 // [0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
+#define ROUND_SUN 0 // [0 1 2] Toggle round sun
 
 #ifdef SHADOW_CASTING
   // Shadow parameters
-  const float shadowIntervalSize = 3.0;
 
   const bool shadowtex0Mipmap = false;
   const bool shadowtex1Mipmap = false;
@@ -504,31 +501,63 @@ const float sunPathRotation = -40.0; // [-80.0 -75.0 -70.0 -65.0 -60.0 -55.0 -50
   #endif
 
   // Quality
-  #if SHADOW_QTY_SLIDER == 1
-    const int shadowMapResolution = 512;
-    #define SHADOW_FIX_FACTOR 0.3
-    #define SHADOW_DIST 0.75
-  #elif SHADOW_QTY_SLIDER == 2
-    const int shadowMapResolution = 768;
-    #define SHADOW_FIX_FACTOR 0.25
-    #define SHADOW_DIST 0.8
-  #elif SHADOW_QTY_SLIDER == 3
-    const int shadowMapResolution = 1024;
-    #define SHADOW_FIX_FACTOR 0.2
-    #define SHADOW_DIST 0.85
-  #elif SHADOW_QTY_SLIDER == 4
-    const int shadowMapResolution = 1536;
-    #define SHADOW_FIX_FACTOR 0.15
-    #define SHADOW_DIST 0.865
-  #elif SHADOW_QTY_SLIDER == 5
-    const int shadowMapResolution = 2304;
-    #define SHADOW_FIX_FACTOR 0.10
-    #define SHADOW_DIST 0.88
-  #elif SHADOW_QTY_SLIDER == 6
-    const int shadowMapResolution = 3072;
-    #define SHADOW_FIX_FACTOR 0.05
-    #define SHADOW_DIST 0.9
+  #if SHADOW_LOCK == 0
+      const float shadowIntervalSize = 3.0;
+    #if SHADOW_QTY_SLIDER == 1
+      const int shadowMapResolution = 512;
+      #define SHADOW_FIX_FACTOR 0.3
+      #define SHADOW_DIST 0.75
+    #elif SHADOW_QTY_SLIDER == 2
+      const int shadowMapResolution = 768;
+      #define SHADOW_FIX_FACTOR 0.25
+      #define SHADOW_DIST 0.8
+    #elif SHADOW_QTY_SLIDER == 3
+      const int shadowMapResolution = 1024;
+      #define SHADOW_FIX_FACTOR 0.2
+      #define SHADOW_DIST 0.85
+    #elif SHADOW_QTY_SLIDER == 4
+      const int shadowMapResolution = 1536;
+      #define SHADOW_FIX_FACTOR 0.15
+      #define SHADOW_DIST 0.865
+    #elif SHADOW_QTY_SLIDER == 5
+      const int shadowMapResolution = 2304;
+      #define SHADOW_FIX_FACTOR 0.10
+      #define SHADOW_DIST 0.88
+    #elif SHADOW_QTY_SLIDER == 6
+      const int shadowMapResolution = 3072;
+      #define SHADOW_FIX_FACTOR 0.05
+      #define SHADOW_DIST 0.9
+    #endif
+  #else
+    const float shadowIntervalSize = 3.0;
+
+    #if SHADOW_QTY_SLIDER == 1
+      const int shadowMapResolution = 320;
+      #define SHADOW_FIX_FACTOR 0.5
+      #define SHADOW_DIST 0.7
+    #elif SHADOW_QTY_SLIDER == 2
+      const int shadowMapResolution = 512;
+      #define SHADOW_FIX_FACTOR 0.25
+      #define SHADOW_DIST 0.8
+    #elif SHADOW_QTY_SLIDER == 3
+      const int shadowMapResolution = 768;
+      #define SHADOW_FIX_FACTOR 0.2
+      #define SHADOW_DIST 0.85
+    #elif SHADOW_QTY_SLIDER == 4
+      const int shadowMapResolution = 1024;
+      #define SHADOW_FIX_FACTOR 0.15
+      #define SHADOW_DIST 0.94
+    #elif SHADOW_QTY_SLIDER == 5
+      const int shadowMapResolution = 1536;
+      #define SHADOW_FIX_FACTOR 0.10
+      #define SHADOW_DIST 0.96
+    #elif SHADOW_QTY_SLIDER == 6
+      const int shadowMapResolution = 2304;
+      #define SHADOW_FIX_FACTOR 0.05
+      #define SHADOW_DIST 0.96
+    #endif
   #endif
+
   
   #if VOL_LIGHT == 2
     const float shadowDistanceRenderMul = 1.0;
@@ -561,9 +590,9 @@ const float centerDepthHalflife = 0.66;
 #if BLOCKLIGHT_TEMP == -1
     #define CANDLE_BASELIGHT vec3(0.4, 0.15, 0.08)
 #elif BLOCKLIGHT_TEMP == 0
-    #define CANDLE_BASELIGHT vec3(0.0039, 0.0039, 0.0039)
+    #define CANDLE_BASELIGHT vec3(0.29975, 0.15392353, 0.0799)
 #elif BLOCKLIGHT_TEMP == 1
-    #define CANDLE_BASELIGHT vec3(0.2745, 0.16, 0.14)
+    #define CANDLE_BASELIGHT vec3(0.3431, 0.20, 0.175)
 #elif BLOCKLIGHT_TEMP == 2
     #define CANDLE_BASELIGHT vec3(0.24975, 0.19392353, 0.0999)
 #elif BLOCKLIGHT_TEMP == 3

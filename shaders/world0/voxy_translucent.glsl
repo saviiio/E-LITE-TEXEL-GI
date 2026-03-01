@@ -8,3 +8,5 @@ void voxy_emitFragment(VoxyFragmentParameters parameters) {
     
     out_translucent_color = vec4(1.0);
 }
+
+// EXPERIMENTAL, THE SHADER HAS NO VOXY SUPPORT.

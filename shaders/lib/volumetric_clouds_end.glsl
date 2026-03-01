@@ -1,4 +1,4 @@
-/* MakeUp - LITE shaders 4.9 - volumetric_clouds_end.glsl
+/* MakeUp - E-LITE shaders 5 - volumetric_clouds_end.glsl
 Fast volumetric clouds (for The End) - MakeUp implementation
 */
 
@@ -42,8 +42,12 @@ vec3 get_end_cloud(vec3 view_vector, vec3 block_color, float bright, float dithe
         intersection_pos += (increment * dither);
 
         for (int i = 0; i < samples; i++) {
-            float current_value = texture2D(gaux2, (intersection_pos.xz * .0008) + (frameTimeCounter * CLOUD_HI_FACTOR * 3.0)).r;
-
+            #if CLOUD_VOL_STYLE == 0
+                float current_value = texture2D(gaux2, (intersection_pos.xz * .0008) + (frameTimeCounter * CLOUD_HI_FACTOR * 3.0)).r;
+            #else
+                float current_value = texture2D(colortex2, (intersection_pos.xz * .0008) + (frameTimeCounter * CLOUD_HI_FACTOR * 3.0)).r;
+            #endif
+            
             #if V_CLOUDS == 2 && CLOUD_VOL_STYLE == 0
                 current_value += texture2D(gaux2, (intersection_pos.zx * .0008) + (frameTimeCounter * CLOUD_LOW_FACTOR * 3.0)).r;
                 current_value = smoothstep(0.05, 0.95, current_value * 0.5);

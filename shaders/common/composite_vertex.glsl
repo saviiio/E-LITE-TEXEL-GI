@@ -72,7 +72,7 @@ void main() {
 
     direct_light_color = day_blend_lgcy(LIGHT_SUNSET_COLOR, LIGHT_DAY_COLOR, LIGHT_NIGHT_COLOR);
     direct_light_color = mix(direct_light_color, ZENITH_SKY_RAIN_COLOR * luma(direct_light_color), rainStrength);
-    direct_light_strength = v3_luma(direct_light_color * 2);
+    direct_light_strength = gray(direct_light_color * 2);
 
     // Exposure
     #if !defined SIMPLE_AUTOEXP
@@ -106,8 +106,8 @@ void main() {
             vol_light_color = saturate(LIGHT_SUNSET_COLOR * 0.75, 2.0) * vol_attenuation,
         #else
             vol_light_color = day_blend(
-                saturate(LIGHT_SUNSET_COLOR * day_blend_float(1.0, 1.0, 0.0), day_blend_float_lgcy(1.0, 1.0, 0.0)) * vol_attenuation,
-                LIGHT_DAY_COLOR * vol_attenuation,
+                saturate(LIGHT_SUNSET_COLOR * day_blend_float(0.75, 1.0, 0.0), mix(day_blend_float_lgcy(1.0, 1.0, 0.0), 0.0, rainStrength)) * vol_attenuation,
+                saturate(LIGHT_DAY_COLOR, 0.1) * vol_attenuation * 0.75,
                 LIGHT_NIGHT_COLOR * 0.85);
         #endif
     #endif

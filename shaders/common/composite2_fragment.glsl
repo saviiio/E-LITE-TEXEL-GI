@@ -1,15 +1,14 @@
 #include "/lib/config.glsl"
 
-#if MC_VERSION < 11604
-    const bool colortex0Clear = false;
-    const bool colortex1Clear = false;
-    const bool colortex2Clear = false;
-    const bool colortex3Clear = false;
-    const bool gaux1Clear = false;
-    const bool gaux2Clear = false;
-    const bool gaux3Clear = false;
-    const bool gaux4Clear = false;
-#endif
+
+const bool colortex0Clear = false;
+const bool colortex1Clear = false;
+const bool colortex2Clear = false;
+const bool colortex3Clear = false;
+const bool gaux1Clear = false;
+const bool gaux2Clear = false;
+const bool gaux3Clear = false;
+const bool gaux4Clear = false;
 
 /* Uniforms */
 
@@ -18,7 +17,7 @@ uniform float viewWidth;
 uniform float viewHeight;
 uniform int frameCounter;
 
-#if AA_TYPE > 0
+#if AA_TYPE > 0 || defined MOTION_BLUR
     uniform sampler2D colortex3;  // TAA past averages
     uniform float pixel_size_x;
     uniform float pixel_size_y;
@@ -43,8 +42,12 @@ varying vec2 texcoord;
     #include "/lib/projection_utils.glsl"
 #endif
 
+#ifdef MOTION_BLUR
+    #include "/lib/dither.glsl"
+#endif
+
 #define FRAGMENT
-#include "/lib/downscale.glsl"
+//#include "/lib/downscale.glsl"
 
 #if AA_TYPE > 0
     #include "/lib/luma.glsl"
@@ -52,14 +55,18 @@ varying vec2 texcoord;
     #include "/lib/fast_taa.glsl"
 #endif
 
+#ifdef MOTION_BLUR
+    #include "/lib/motion_blur.glsl"
+#endif
+
 // MAIN FUNCTION ------------------
 
 void main() {
-    if (fragment_cull()) discard;
+    //if (fragment_cull()) discard;
     vec4 block_color = texture2DLod(colortex1, texcoord, 0);
 
     // Precalc past position and velocity
-    #if AA_TYPE > 0
+    #if AA_TYPE > 0 || defined MOTION_BLUR
         // Retrojection of previous frame
         float z_depth = texture2DLod(depthtex1, texcoord, 0).r;
         vec2 texcoord_past;
@@ -69,7 +76,7 @@ void main() {
         vec3 prev_view_pos;
         vec2 final_pos;
 
-        if(z_depth < 0.56) {
+        if(z_depth < 0.7) {
             texcoord_past = texcoord;
         } else {
             curr_view_pos =
@@ -85,6 +92,12 @@ void main() {
             texcoord_past = (final_pos / -prev_view_pos.z) * 0.5 + 0.5;
         }
 
+    #endif
+
+    #ifdef MOTION_BLUR
+        // "Speed"
+        vec2 velocity = (texcoord * RENDER_SCALE) - texcoord_past;
+        block_color.rgb = motion_blur(block_color.rgb, z_depth, velocity, colortex1);
     #endif
 
     #if AA_TYPE > 0

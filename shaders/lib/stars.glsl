@@ -1,27 +1,23 @@
-/* __   ______________
-  / /  /  _/_  __/ __/
- / /___/ /  / / / _/
-/____/___/ /_/ /___/
-
-LITE shaders 4.9 - stars.glsl
+/* ____    __   ______________
+  / __/___/ /  /  _/_  __/ __/
+ / _//___/ /___/ /  / / / _/  
+/___/   /____/___/ /_/ /___/  
+                                                      
+E-LITE shaders 5 - stars.glsl
 Stars render fixed in world space. - Renderização de estrelas fixas no espaço do mundo. 
 
 Based on https://www.shadertoy.com/view/Md2SR3
+License:  https://creativecommons.org/licenses/by-nc-sa/3.0/
+Modified.
 */
-
-#include "/lib/render_aux.glsl"
 
 float NoisyStarField(in vec2 p_grid_coord, float fThreshhold) {
     float StarVal = noise2D_grid(p_grid_coord);
     
     if (StarVal >= fThreshhold) {
-        StarVal = pow((StarVal - fThreshhold) / (1.0 - fThreshhold), 10.0); // <- Calculate stars
+        StarVal = fastpow((StarVal - fThreshhold) / (1.0 - fThreshhold), 10.0); // <- Calculate stars
         
-        #ifdef THE_END
-            if (StarVal < 0.3) return 0.0;
-        #else
-            if (StarVal < 0.3) discard;
-        #endif
+        if (StarVal < 0.3) return 0.0;
 
         return clamp(StarVal, 0.1, 1.0);
     }

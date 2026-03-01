@@ -10,12 +10,12 @@ varying vec3 basic_light;
 
 
 #define FRAGMENT
-#include "/lib/downscale.glsl"
+//#include "/lib/downscale.glsl"
 
 // MAIN FUNCTION ------------------
 
 void main() {
-    if(fragment_cull()) discard;
+    //if(fragment_cull()) discard;
     vec4 block_color = tint_color;
     block_color.rgb *= basic_light;
 

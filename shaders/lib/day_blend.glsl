@@ -1,3 +1,9 @@
+/* MakeUp - E-LITE shaders 5 - day_blend.glsl
+Day blend functions.
+
+Javier Garduño - GNU Lesser General Public License v3.0
+*/
+
 float absSunRotation = abs(sunPathRotation); // Absolute value of Sun path rotation.
 
 vec3 day_blend_lgcy(vec3 sunset, vec3 day, vec3 night) {
@@ -20,7 +26,7 @@ float day_blend_float_lgcy(float sunset, float day, float night) {
     return mix(day_value, night_value, smoothstep(0.45, 0.52 + (absSunRotation / 600), day_moment));
 }
 
-#if COLOR_SCHEME == 8
+#if COLOR_SCHEME == 2
     vec3 day_blend(vec3 sunset, vec3 day, vec3 night) {
         // f(x) = min(-((x-.25)^2)∙20 + 1.25, 1)
         // g(x) = min(-((x-.75)^2)∙50 + 3.125, 1)

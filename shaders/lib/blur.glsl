@@ -1,11 +1,11 @@
-/* MakeUp - LITE shaders 4.9 - blur.glsl
+/* MakeUp - E-LITE shaders 5 - blur.glsl
 Blur functions.
 
 Javier Garduño - GNU Lesser General Public License v3.0
 */
 
 vec3 noised_blur(vec4 color_depth, sampler2D image, vec2 coords, float force, float dither) {
-    if(fragment_cull()) discard;
+    //if(fragment_cull()) return vec3(0.0);
     vec3 block_color = color_depth.rgb;
     float the_depth = color_depth.a;
     float blur_radius = 0.0;

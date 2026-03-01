@@ -37,7 +37,6 @@ uniform float wetness;
 uniform float light_mix;
 uniform ivec2 eyeBrightnessSmooth;
 uniform sampler2D gaux4;
-uniform float alphaTestRef;
 uniform vec4 lightningBoltPosition;
 uniform float frameTime;
 uniform mat4 gbufferModelViewInverse;
@@ -50,6 +49,7 @@ uniform mat4 gbufferModelViewInverse;
 
 #if V_CLOUDS > 0
     uniform sampler2D gaux2;
+    uniform sampler2D colortex2;
 #endif
 
 #if defined SHADOW_CASTING && !defined NETHER
@@ -75,12 +75,24 @@ uniform float blindness;
     uniform float darknessLightFactor;
 #endif
 
+#if SHADOW_LOCK > 0 && defined SHADOW_CASTING
+    uniform mat4 shadowModelView;
+    uniform mat4 shadowProjection;
+    uniform vec3 shadowLightPosition;
+#endif
+
+#if defined THE_END || (SHADOW_LOCK > 0 && defined SHADOW_CASTING && !defined NETHER)
+    uniform mat4 gbufferModelView;
+#endif
+
+
 /* Ins / Outs */
 
 varying vec2 texcoord;
 varying vec2 lmcoord;
 varying vec4 tint_color;
 varying float fog_adj;
+varying float near_fog;
 varying vec3 water_normal;
 varying float block_type;
 varying vec4 worldposition;
@@ -109,10 +121,20 @@ vec3 nfragpos = normalize(fragpos.xyz);
     varying float shadow_diffuse;
 #endif
 
+#if defined SHADOW_CASTING && SHADOW_LOCK > 0 && !defined NETHER
+    varying vec3 vWorldPos;
+    varying vec3 vNormal;
+    varying vec3 vBias;
+#endif
+
 #if (V_CLOUDS > 0 && !defined UNKNOWN_DIM) && !defined NO_CLOUDY_SKY
     varying float umbral;
     varying vec3 cloud_color;
     varying vec3 dark_cloud_color;
+#endif
+
+#ifdef FOG_ACTIVE
+    varying float sunInfluence;
 #endif
 
 /* Utility functions */
@@ -136,13 +158,17 @@ vec3 nfragpos = normalize(fragpos.xyz);
     #include "/lib/volumetric_clouds.glsl"
 #endif
 
+#if defined SHADOW_CASTING && SHADOW_LOCK > 0 && !defined NETHER
+    #include "/lib/shadow_vertex.glsl"
+#endif
+
 #define FRAGMENT
-#include "/lib/downscale.glsl"
+//#include "/lib/downscale.glsl"
 
 // MAIN FUNCTION ------------------
 
 void main() {
-    if(fragment_cull()) discard;
+    //if(fragment_cull()) discard;
     vec2 eye_bright_smooth = vec2(eyeBrightnessSmooth);
 
     #if SHADOW_TYPE == 1 || defined DISTANT_HORIZONS || (defined CLOUD_REFLECTION && (V_CLOUDS > 0 && !defined UNKNOWN_DIM) && !defined NETHER) || SSR_TYPE > 0
@@ -192,24 +218,35 @@ void main() {
         #ifdef VANILLA_WATER
             block_color = texture2D(tex, texcoord);
             #if defined SHADOW_CASTING && !defined NETHER
+                #if SHADOW_LOCK > 0
+                    vec3 offsetVector = vNormal * 0.002;
+                    vec3 preSnapPos = vWorldPos + offsetVector;
+                    float texelSize = SHADOW_LOCK;
+                    vec3 absPos = preSnapPos + cameraPosition;
+                    // Rounding to nearest block
+                    vec3 snappedAbsolute = floor(absPos * texelSize) / texelSize;
+                    snappedAbsolute += 0.5 / texelSize; // Centralize on texel
+                    vec3 final_world_pos = (snappedAbsolute - cameraPosition) + vBias;
+                    vec3 shadow_real_pos = get_shadow_pos(final_world_pos);
+                #else
+                    vec3 shadow_real_pos = shadow_pos;
+                #endif
                 #if defined COLORED_SHADOW
-                    vec3 shadow_c = get_colored_shadow(shadow_pos, dither);
+                    vec3 shadow_c = get_colored_shadow(shadow_real_pos, dither);
                     shadow_c = mix(shadow_c, vec3(1.0), shadow_diffuse);
                 #else
-                    vec3 shadow_c = get_shadow(shadow_pos, dither);
+                    vec3 shadow_c = get_shadow(shadow_real_pos, dither);
                     shadow_c = mix(shadow_c, vec3(1.0), shadow_diffuse);
                 #endif
             #else
                 vec3 shadow_c = vec3(abs((light_mix * 2.0) - 1.0));
             #endif
 
-            float fresnel_tex = luma(block_color.rgb);
-
             real_light = omni_light +
                 (direct_light_strength * shadow_c * direct_light_color) * (1.0 - rainStrength * 0.75) +
                 candle_color;
 
-            real_light *= (fresnel_tex * 2.0) - 0.25;
+            real_light *= 1.25;
 
             block_color.rgb *= mix(real_light, vec3(1.0), nightVision * .125) * tint_color.rgb;
 
@@ -251,7 +288,7 @@ void main() {
         block_color *= tint_color;
 
         if(block_type < 0.11 && block_type > 0.09) { // Enhanced Portal
-            block_color.rgb *= fourth_pow(block_luma) * 1000;
+            block_color.rgb *= fifth_pow(block_luma) * 7500;
         } else if(block_type > 2.3 && block_type < 2.5) { // Ice
             block_color = saturate_v4(block_color, 0.5);
             block_color.a *= 0.75;
@@ -284,7 +321,6 @@ void main() {
                 sat = 3.0;
             }
             block_color = cristal_shader(fragposition, water_normal, saturate_v4(block_color, sat), sky_color_reflect, fresnel, visible_sky, dither, direct_light_color);
-            if (block_color.a < alphaTestRef) discard;
         }
     }
 

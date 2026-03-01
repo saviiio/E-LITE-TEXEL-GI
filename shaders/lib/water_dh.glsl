@@ -1,7 +1,3 @@
-/* MakeUp - LITE shaders 4.9 - water_dh.glsl
-Water reflection and refraction related functions (dh).
-*/
-
 #if SUN_REFLECTION > 0
     #if !defined NETHER && !defined THE_END
         float sun_reflection(vec3 fragpos, float smoothstep1) {
@@ -28,7 +24,6 @@ Water reflection and refraction related functions (dh).
                 float s = sin(angle);
                 float c = cos(angle);
                 
-                // Rotation
                 float dotX = rawX * c - rawY * s;
                 float dotY = rawX * s + rawY * c;
                 
@@ -117,7 +112,7 @@ vec4 reflection_calc_dh(vec3 fragpos, vec3 normal, vec3 reflected, vec3 infinite
     float border =
         clamp((1.0 - (max(0.0, abs(pos_y_normalized - 0.5)) * 2.0)) * 50.0, 0.0, 1.0);
 
-    border = clamp(border - pow(pos.y, 10.0), 0.0, 1.0);
+    border = clamp(border - fastpow(pos.y, 10.0), 0.0, 1.0);
 
     pos.x = abs(pos.x);
 

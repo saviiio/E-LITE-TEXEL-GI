@@ -1,10 +1,7 @@
-/* __   ______________
-  / /  /  _/_  __/ __/
- / /___/ /  / / / _/
-/____/___/ /_/ /___/
-
-LITE shaders 4.9 - downscale.glsl #include "/lib/downscale.glsl"
+/* E-LITE shaders 5 - downscale.glsl //#include "/lib/downscale.glsl"
 Downscale functions. - Funções de downscale.*/ 
+
+// UNUSED
 
 #define viewSize vec2(viewWidth, viewHeight)
 

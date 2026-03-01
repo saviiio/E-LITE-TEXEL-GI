@@ -48,23 +48,23 @@ varying vec4 position;
 
 /* Utility functions */
 
-#if AA_TYPE > 0
+#if AA_TYPE > 1
     #include "/src/taa_offset.glsl"
 #endif
 
 #if MC_VERSION < 11604
     #include "/lib/luma.glsl"
 #endif
-#include "/lib/downscale.glsl"
+//#include "/lib/downscale.glsl"
 
 // MAIN FUNCTION ------------------
 
 void main() {
     texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
     gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-    resize_vertex(gl_Position);
+    //resize_vertex(gl_Position);
 
-    #if AA_TYPE > 0
+    #if AA_TYPE > 1
         gl_Position.xy += taa_offset * gl_Position.w;
     #endif
 

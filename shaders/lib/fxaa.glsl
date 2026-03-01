@@ -1,4 +1,4 @@
-/* MakeUp Ultra Fast - LITE shaders 4.9 - fxaa.glsl
+/* MakeUp Ultra Fast - E-LITE shaders 5 - fxaa.glsl
 FXAA 3.11 from Simon Rodriguez
 http://blog.simonrodriguez.fr/articles/30-07-2016_implementing_fxaa.html
 
@@ -11,7 +11,7 @@ vec3 fxaa311(vec3 color, int iterations, vec2 texcoord){
 
   float edgeThresholdMin = 0.03125f;
   float edgeThresholdMax = 0.25f;
-  float subpixelQuality = 0.25f / RENDER_SCALE;
+  float subpixelQuality = 0.0f;
 
   // Luma at the current fragment
   float lumaCenter = luma(color);

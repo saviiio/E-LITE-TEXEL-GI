@@ -25,8 +25,9 @@ uniform sampler2D gaux3;
 uniform float viewWidth;
 uniform float viewHeight;
 
-#if V_CLOUDS > 0
+#if V_CLOUDS > 0 || AURORA > 0
     uniform sampler2D gaux2;
+    uniform sampler2D colortex2;
 #endif
 
 #if AO == 1
@@ -34,9 +35,12 @@ uniform float viewHeight;
     uniform float fov_y_inv;
 #endif
 
-#if V_CLOUDS > 0 && !defined UNKNOWN_DIM
+#if V_CLOUDS > 0 && !defined UNKNOWN_DIM || AURORA > 0
     uniform sampler2D noisetex;
     uniform vec3 cameraPosition;
+#endif
+
+#if (V_CLOUDS > 0 && !defined UNKNOWN_DIM || AURORA > 0) || ROUND_SUN < 2
     uniform vec3 sunPosition;
 #endif
     
@@ -52,7 +56,7 @@ uniform float pixel_size_x;
 uniform float pixel_size_y;
 uniform float frameTime;
 
-#if AO == 1 || (V_CLOUDS > 0 && !defined UNKNOWN_DIM)
+#if AO == 1 || (V_CLOUDS > 0 && !defined UNKNOWN_DIM) || AURORA > 0
     uniform mat4 gbufferProjection;
     uniform float frameTimeCounter;
     uniform int frameCounter;
@@ -64,7 +68,7 @@ varying vec3 up_vec;  // Flat
 varying vec3 direct_light_color;
 varying vec3 direct_light_strength;
 
-#if (V_CLOUDS > 0 && !defined UNKNOWN_DIM) && !defined NO_CLOUDY_SKY
+#if (V_CLOUDS > 0 && !defined UNKNOWN_DIM) && !defined NO_CLOUDY_SKY || AURORA > 0
     varying float umbral;
     varying float dynamicValue;
     varying vec3 cloud_color;
@@ -73,6 +77,9 @@ varying vec3 direct_light_strength;
 
 #if AO == 1
     varying float fog_density_coeff;
+    #ifdef DISTANT_HORIZONS
+        varying float sunInfluence;
+    #endif
 #endif
 
 /* Utility functions */ 
@@ -80,12 +87,18 @@ varying vec3 direct_light_strength;
 #include "/lib/depth.glsl"
 #include "/lib/luma.glsl"
 #include "/lib/fps_correction.glsl"
+#include "/lib/basic_utils.glsl"
 
 #ifdef DISTANT_HORIZONS
     #include "/lib/depth_dh.glsl"
 #endif
 
-#if AO == 1 || (V_CLOUDS > 0 && !defined UNKNOWN_DIM)
+#if !defined THE_END && !defined NETHER && ROUND_SUN < 2
+    #include "/lib/render_aux.glsl"
+    #include "/lib/round_sun.glsl"
+#endif
+
+#if AO == 1 || (V_CLOUDS > 0 && !defined UNKNOWN_DIM) || AURORA > 0
     #include "/lib/dither.glsl"
 #endif
 
@@ -95,7 +108,7 @@ varying vec3 direct_light_strength;
 
 #include "/lib/biome_sky.glsl"
 
-#if (V_CLOUDS > 0 && !defined UNKNOWN_DIM)
+#if (V_CLOUDS > 0 && !defined UNKNOWN_DIM) || AURORA > 0
     #include "/lib/projection_utils.glsl"
 
     #ifdef THE_END
@@ -106,33 +119,44 @@ varying vec3 direct_light_strength;
 #endif
 
 #define FRAGMENT
-#include "/lib/downscale.glsl"
+//#include "/lib/downscale.glsl"
 
 // MAIN FUNCTION ------------------
 
 void main() {
-    if(fragment_cull()) discard;
+    //if(fragment_cull()) discard;
     vec4 block_color = texture2DLod(colortex1, texcoord * RENDER_SCALE, 0);
+    
     float d = texture2DLod(depthtex0, texcoord * RENDER_SCALE, 0).r;
     float linear_d = ld(d);
+    
+    #ifdef DISTANT_HORIZONS
+        float d2 = texture2DLod(dhDepthTex0, texcoord * RENDER_SCALE, 0).r;
+        float dh_d = ld_dh(d2);
+    #endif
+
+    #if !defined THE_END && !defined NETHER && ROUND_SUN < 2
+        vec3 sun = draw_sun();
+        #ifdef DISTANT_HORIZONS
+            block_color.rgb += sun * step(0.9999, dh_d * d);
+        #else
+            block_color.rgb += sun * step(0.9999, d);
+        #endif
+    #endif
 
     vec2 eye_bright_smooth = vec2(eyeBrightnessSmooth);
 
     vec3 view_vector = vec3(1.0);
 
-    #if AO == 1 || (V_CLOUDS > 0 && !defined UNKNOWN_DIM)
-        #if AA_TYPE > 0
-            #if MC_VERSION >= 11300
-                float dither = shifted_eclectic_r_dither(gl_FragCoord.xy);
-            #else
-                float dither = shifted_dither13(gl_FragCoord.xy);
-            #endif
+    #if AO == 1 || (V_CLOUDS > 0 && !defined UNKNOWN_DIM) || AURORA > 0
+        #if AA_TYPE > 0 && !defined PS1_LIKE
+            float dither = shifted_eclectic_r_dither(gl_FragCoord.xy);
         #else
             float dither = semiblue(gl_FragCoord.xy);
         #endif
     #endif
 
-    #if (V_CLOUDS > 0 && !defined UNKNOWN_DIM) && !defined NO_CLOUDY_SKY
+    #if ((V_CLOUDS > 0 && !defined UNKNOWN_DIM) && !defined NO_CLOUDY_SKY) || AURORA > 0
         if(linear_d > 0.9999) {  // Only sky
             vec4 world_pos = gbufferModelViewInverse * gbufferProjectionInverse * (vec4(texcoord, 1.0, 1.0) * 2.0 - 1.0);
             view_vector = normalize(world_pos.xyz);
@@ -189,10 +213,19 @@ void main() {
                 linear_d = screen_distance / NETHER_SIGHT;
             }
         #endif
-        float ao_att =
-            pow(clamp(linear_d * 1.6, 0.0, 1.0), mix(fog_density_coeff, 0.2, rainStrength));
 
-        float final_ao = mix(dbao(dither), 1.0, ao_att);
+        float ao_att = pow(clamp(linear_d * 1.6, 0.0, 1.0), mix(fog_density_coeff, 0.2, rainStrength));
+
+        #ifdef DISTANT_HORIZONS
+            if (d >= 1.0) {
+                float ao_attdh = pow(clamp(dh_d * 1.6, 0.0, 1.0), mix(fog_density_coeff, 0.2, rainStrength));
+                
+                float final_aodh = clamp(mix(dh_dbao(dither), 1.0, ao_attdh), 0.0, 1.0);
+                block_color.rgb *= final_aodh;
+            }
+        #endif
+
+        float final_ao = clamp(mix(dbao(dither), 1.0, ao_att), 0.0, 1.0);
         block_color.rgb *= final_ao;
     #endif
 
@@ -205,7 +238,7 @@ void main() {
     #endif
 
     float eye_brightness_scaled_val = (eye_bright_smooth.y * .8 + 48.0) * 0.004166666666666667;
-    vec3 water_light_color_base = NIGHT_CORRECTION * WATER_COLOR * COLOR_CORRECTION * direct_light_strength;
+    vec3 water_light_color_base = NIGHT_CORRECTION * saturate(WATER_COLOR, mix(1.0, 0.25, rainStrength)) * COLOR_CORRECTION * direct_light_strength;
 
     // Underwater sky
     if(isEyeInWater == 1) {
@@ -215,7 +248,16 @@ void main() {
     }
 
     block_color = clamp(block_color, vec4(0.0), vec4(vec3(50.0), 1.0));
-    /* DRAWBUFFERS:14 */
+    
+    /* DRAWBUFFERS:124 */
+
     gl_FragData[0] = vec4(block_color.rgb, d);
-    gl_FragData[1] = block_color;
+
+    #ifdef BLOOM
+        gl_FragData[1] = block_color;
+    #endif
+
+    #if SSR_TYPE > -1 || MATERIAL_GLOSS > 1
+       gl_FragData[2] = block_color;
+    #endif
 }

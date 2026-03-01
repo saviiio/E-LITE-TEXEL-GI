@@ -1,5 +1,5 @@
-/* MakeUp - LITE shaders 4.9 - volumetric_clouds.glsl
-Fast volumetric clouds - MakeUp & LITE shaders implementation
+/* MakeUp - E-LITE shaders 5 - volumetric_clouds.glsl
+Fast volumetric clouds - MakeUp & E-LITE shaders implementation
 */
 
 // Constants for the second cloud layer
@@ -30,6 +30,7 @@ vec3 get_cloud(vec3 view_vector, vec3 block_color, float bright, float dither, v
     float distance_aux;
     float dist_aux_coeff_blur;
 
+    #if V_CLOUDS > 0
     // Cirrus clouds variables
     #ifdef CIRRUS
         float cloud_value_2;
@@ -69,12 +70,12 @@ vec3 get_cloud(vec3 view_vector, vec3 block_color, float bright, float dither, v
         dif_sup = (CLOUD_PLANE_SUP - CLOUD_PLANE_CENTER) / CLOUD_DENSITY;
         dif_inf = (CLOUD_PLANE_CENTER - CLOUD_PLANE) / CLOUD_DENSITY;
         dist_aux_coeff = (CLOUD_PLANE_SUP - CLOUD_PLANE) * 0.075 / CLOUD_DENSITY;
-        dist_aux_coeff_blur = dist_aux_coeff * 0.3;
+        dist_aux_coeff_blur = dist_aux_coeff * 0.6;
 
         opacity_dist = dist_aux_coeff * 2.0 * view_y_inv;
 
         #if CLOUD_VOL_STYLE == 0
-            increment = (intersection_pos_sup - intersection_pos) / 7;
+            increment = (intersection_pos_sup - intersection_pos) / 8;
             float sample_fix = 0.0;
         #else
             increment = (intersection_pos_sup - intersection_pos) / 8;
@@ -87,12 +88,19 @@ vec3 get_cloud(vec3 view_vector, vec3 block_color, float bright, float dither, v
         intersection_pos += (increment * dither);
 
         for (int i = 0; i < samples + sample_fix; i++) {
+        #if CLOUD_VOL_STYLE == 0
             current_value =
                 texture2D(
                     gaux2,
                     (intersection_pos.xz * 0.0002777777777777778) + (frameTimeCounter * (WIND_FORCE * 0.55 + 0.5) * CLOUD_HI_FACTOR)
                 ).r;
-
+        #else
+            current_value =
+              texture2D(
+                colortex2,
+                      (intersection_pos.xz * 0.0002777777777777778) + (frameTimeCounter * (WIND_FORCE * 0.55 + 0.5) * CLOUD_HI_FACTOR)
+            ).g;
+        #endif
 
             #if V_CLOUDS == 2 && CLOUD_VOL_STYLE == 0
                 current_value +=
@@ -171,7 +179,7 @@ vec3 get_cloud(vec3 view_vector, vec3 block_color, float bright, float dither, v
         // Sun halo.
         #if CLOUD_VOL_STYLE == 0
             cloud_color_1 =
-                mix(cloud_color_1, cloud_color_1 + light_color * day_blend_float(3.0, 3.0, 0.0), (1.0 - pow(cloud_value, 0.2)) * bright * bright * bright * bright * (1.0 - rainStrength));
+                mix(cloud_color_1, cloud_color_1 + light_color * day_blend_float(3.0, 3.0, 0.0), (1.0 - pow(cloud_value, 0.2)) * bright * bright * (1.0 - rainStrength));
         #else
             cloud_color_1 =
                 mix(cloud_color_1, cloud_color_1 + light_color * day_blend_float(2.0, 1.5, 10.0), (1.0 - cloud_value) * bright * bright * sqrt(bright) * (1.0 - rainStrength));
@@ -179,7 +187,7 @@ vec3 get_cloud(vec3 view_vector, vec3 block_color, float bright, float dither, v
 
         #if CLOUD_VOL_STYLE == 0
             cloud_color_1 =
-                mix(cloud_color_1, cloud_color_1 + light_color * day_blend_float(0.0, 0.0, 0.25), (pow(cloud_value, 1.0)) * bright * bright * bright * (1.0 - rainStrength));
+                mix(cloud_color_1, cloud_color_1 + light_color * day_blend_float(0.1, 0.0, 0.25), (pow(cloud_value, 1.0)) * bright * bright * bright * bright * (1.0 - rainStrength));
         #else
             cloud_color_1 =
                 mix(cloud_color_1, cloud_color_1 + light_color * day_blend_float(0.1, 0.1, 0.25), (pow(cloud_value, 1.0)) * bright * bright * bright * (1.0 - rainStrength));
@@ -201,7 +209,7 @@ vec3 get_cloud(vec3 view_vector, vec3 block_color, float bright, float dither, v
 
     #ifdef CIRRUS
         if (CLOUD_DENSITY >= 1.0) {
-            umbral *= 1.0 / pow(CLOUD_DENSITY, 3.5);
+            umbral *= 1.0 / fastpow(CLOUD_DENSITY, 3.5);
         } else {
             umbral /= CLOUD_DENSITY * 3.0;
         }
@@ -217,7 +225,7 @@ vec3 get_cloud(vec3 view_vector, vec3 block_color, float bright, float dither, v
             dif_sup_2 = (CLOUD_PLANE_SUP_2 - CLOUD_PLANE_CENTER_2) / CLOUD_DENSITY;
             dif_inf_2 = (CLOUD_PLANE_CENTER_2 - CLOUD_PLANE_2) / CLOUD_DENSITY;
             dist_aux_coeff = (CLOUD_PLANE_SUP_2 - CLOUD_PLANE_2) * 0.075;
-            dist_aux_coeff_blur = dist_aux_coeff * 0.3;
+            dist_aux_coeff_blur = dist_aux_coeff * 0.7;
 
             opacity_dist_2 = dist_aux_coeff * 2.0 * view_y_inv;
 
@@ -290,10 +298,10 @@ vec3 get_cloud(vec3 view_vector, vec3 block_color, float bright, float dither, v
             cloud_color_2 = mix(cloud_color_orig * att_factor, dark_cloud_color_orig * att_factor, pow(density_2, 0.4));
 
             cloud_color_2 =
-                mix(cloud_color_2, cloud_color_2 + light_color * day_blend_float(2.5, 4.0, 1.0), (1.0 - pow(cloud_value_2, 0.2)) * bright * (1.0 - rainStrength));
+                mix(cloud_color_2, cloud_color_2 + light_color * day_blend_float(1.5, 4.0, 1.0), (1.0 - pow(cloud_value_2, 0.12)) * bright * (1.0 - rainStrength));
 
             cloud_color_2 =
-                mix(cloud_color_2, cloud_color_2 + light_color * day_blend_float(0.0, 0.5, 1.0), (pow(cloud_value_2, 0.1)) * bright * bright * bright * (1.0 - rainStrength));
+                mix(cloud_color_2, cloud_color_2 + light_color * day_blend_float(0.5, 0.5, 1.0), (pow(cloud_value_2, 0.1)) * bright * bright * bright * (1.0 - rainStrength));
 
             // Blend the second layer with the first
             float second_layer_opacity = cloud_value_2 * clamp((view_vector.y - 0.025) * 2, 0.0, 1.0) * (1.0 - cloud_value);
@@ -305,6 +313,49 @@ vec3 get_cloud(vec3 view_vector, vec3 block_color, float bright, float dither, v
         #endif
     #endif
     }
+    #endif
+
+    #if AURORA > 0
+        if (view_vector.y > 0.05 && day_blend_float(0.0, 0.0, 1.0) > 0.02) {
+            vec3 aurora_sum = vec3(0.0);
+            int layers = 12; 
+
+            for (int i = 0; i < layers; i++) {
+                float altitude = 800.0 + (float(i) + dither) * 35.0;
+                float t = altitude / view_vector.y;
+
+                vec2 world_uv = (cameraPosition.xz + view_vector.xz * t) * 0.00015;
+                
+                float wind = frameTimeCounter * 0.2 * 35 * sqrt(CLOUD_HI_FACTOR);
+
+                float noise = texture2D(gaux2, world_uv).r;
+                
+                float zenith = clamp(view_vector.y, 0.0, 1.0);
+                float stripe_freq = mix(30.0, 90.0, zenith * zenith);
+
+                float stripe_wave = sin(world_uv.x * stripe_freq + noise * 12.0 +  + wind + float(i) * 0.15);
+                float stripes = smoothstep(0.2, 0.9, stripe_wave * noise);
+                
+                float layer_progress = float(i) / float(layers);
+                float fade = 1.0 - layer_progress * layer_progress;
+                fade *= smoothstep(0.0, 0.5, noise * (1.0 - layer_progress * 0.5));
+                
+                vec3 col = mix(vec3(0.1, 1.0, 0.6), vec3(0.7137, 0.3882, 0.9137), layer_progress / 0.75);
+
+                aurora_sum += col * stripes * fade * (1.0 - cloud_value) * clamp(day_blend_float(-1.0, 0.0, 1.0), 0.0, 1.0);
+            }
+
+            float horizon_mask = smoothstep(0.05, 0.25, view_vector.y);
+            
+            #if AURORA == 1
+                float final_intensity = 0.025 * horizon_mask * (1.0 - rainStrength) * taiga_snow;
+            #elif AURORA == 2
+                float final_intensity = 0.025 * horizon_mask * (1.0 - rainStrength);
+            #endif
+
+            block_color += aurora_sum * final_intensity;
+        }
+    #endif
 
     return block_color;
 }

@@ -35,17 +35,17 @@ varying vec3 basic_light;
 #include "/lib/luma.glsl"
 #include "/lib/basic_utils.glsl"
 
-#if AA_TYPE > 0
+#if AA_TYPE > 1
     #include "/src/taa_offset.glsl"
 #endif
-#include "/lib/downscale.glsl"
+//#include "/lib/downscale.glsl"
 
 // MAIN FUNCTION ------------------
 
 void main() {
     #include "/src/basiccoords_vertex.glsl"
     #include "/src/position_vertex.glsl"
-    resize_vertex(gl_Position);
+    //resize_vertex(gl_Position);
     tint_color = gl_Color;
 
     basic_light = day_blend(LIGHT_SUNSET_COLOR, LIGHT_DAY_COLOR, LIGHT_NIGHT_COLOR);

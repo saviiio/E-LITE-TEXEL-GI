@@ -43,6 +43,7 @@ varying float direct_light_strength;
 varying vec3 omni_light;
 varying vec4 position;
 varying vec3 fragposition;
+varying vec4 sub_position;
 varying vec3 tangent;
 varying vec3 binormal;
 varying vec3 water_normal;
@@ -51,6 +52,7 @@ varying float visible_sky;
 varying vec2 lmcoord;
 varying float block_type;
 varying float fog_adj;
+varying float near_fog;
 varying vec3 hi_sky_color;
 varying vec3 mid_sky_color;
 varying vec3 low_sky_color;
@@ -63,7 +65,7 @@ uniform int frameCounter;
 uniform float frameTime;
 /* Utility functions */
 
-#if AA_TYPE > 0
+#if AA_TYPE > 1
     #include "/src/taa_offset.glsl"
 #endif
 
@@ -72,7 +74,7 @@ uniform float frameTime;
 
 #define FOG_BIOME
 #include "/lib/biome_sky.glsl"
-#include "/lib/downscale.glsl"
+//#include "/lib/downscale.glsl"
 
 // MAIN FUNCTION ------------------
 
@@ -85,7 +87,7 @@ void main() {
     
     #include "/src/basiccoords_vertex_dh.glsl"
     #include "/src/position_vertex_dh.glsl"
-    resize_vertex(gl_Position);
+    //resize_vertex(gl_Position);
     #include "/src/light_vertex_dh.glsl"
     #include "/src/fog_vertex_dh.glsl"
 

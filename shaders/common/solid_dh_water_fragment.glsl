@@ -49,6 +49,7 @@ uniform float frameTime;
 
 #if V_CLOUDS > 0
     uniform sampler2D gaux2;
+    uniform sampler2D colortex2;
 #endif
 
 #if defined SHADOW_CASTING && !defined NETHER
@@ -75,6 +76,7 @@ varying vec3 candle_color;
 varying float direct_light_strength;
 varying vec3 omni_light;
 varying vec4 position;
+varying vec4 sub_position;
 varying vec3 fragposition;
 varying vec3 tangent;
 varying vec3 binormal;
@@ -84,6 +86,7 @@ varying float visible_sky;
 varying vec2 lmcoord;
 varying float block_type;
 varying float fog_adj;
+varying float near_fog;
 varying vec3 hi_sky_color;
 varying vec3 mid_sky_color;
 varying vec3 low_sky_color;
@@ -105,10 +108,10 @@ vec3 nfragpos = normalize(fragpos.xyz);
 #include "/src/current_sky_color.glsl"
 
 #define FRAGMENT
-#include "/lib/downscale.glsl"
+//#include "/lib/downscale.glsl"
 
 void main() {
-    if(fragment_cull()) discard;
+    //if(fragment_cull()) discard;
     vec2 eye_bright_smooth = vec2(eyeBrightnessSmooth);
     vec3 real_light;
 
@@ -188,13 +191,9 @@ void main() {
     #ifdef VANILLA_WATER
         float shadow_c = abs((light_mix * 2.0) - 1.0);
 
-        float fresnel_tex = luma(block_color.rgb);
-
         real_light = omni_light +
             (direct_light_strength * shadow_c * direct_light_color) * (1.0 - rainStrength * 0.75) +
             candle_color;
-
-        real_light *= (fresnel_tex * 2.0) - 0.25;
 
         block_color.rgb *= mix(real_light, vec3(1.0), nightVision * .125) * tint_color.rgb;
 
@@ -215,7 +214,7 @@ void main() {
         #if WATER_COLOR_SOURCE == 0
                 block_color.rgb = water_texture * real_light * WATER_COLOR;
         #elif WATER_COLOR_SOURCE == 1
-            block_color.rgb = 0.3 * water_texture * real_light * tint_color.rgb;
+            block_color.rgb = 0.5 * water_texture * real_light * tint_color.rgb;
         #endif
 
             block_color = vec4(refraction(fragposition, block_color.rgb, water_normal_base), 1.0);
@@ -224,9 +223,7 @@ void main() {
             fresnel = clamp(fresnel * (water_texture * water_texture + 0.5), 0.0, 1.0);
         #endif
 
-        block_color.rgb = water_shader_dh(fragposition, surface_normal, block_color.rgb, sky_color_reflect * day_blend_float(1.15, 1.15, 1.0), norm_reflect_water_vec, fresnel, visible_sky, dither, direct_light_color);
-
-        // ^ Water is now nearly identical to vanilla.
+        block_color.rgb = water_shader_dh(fragposition, surface_normal, block_color.rgb, sky_color_reflect * day_blend_float(1.15, 1.0, 1.0), norm_reflect_water_vec, fresnel, visible_sky, dither, direct_light_color);
     #endif
 
     } else {  // Otros translúcidos

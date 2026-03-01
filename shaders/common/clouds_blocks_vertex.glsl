@@ -23,7 +23,7 @@ uniform float frameTime;
 
 /* Utility functions */
 
-#if AA_TYPE > 0
+#if AA_TYPE > 1
     #include "/src/taa_offset.glsl"
 #endif
 
@@ -31,7 +31,7 @@ uniform float frameTime;
     #include "/lib/luma.glsl"
 #endif
 
-#include "/lib/downscale.glsl"
+//#include "/lib/downscale.glsl"
 
 // MAIN FUNCTION ------------------
 
@@ -41,5 +41,5 @@ void main() {
         tint_color = gl_Color;
     #endif
     #include "/src/position_vertex.glsl"
-    resize_vertex(gl_Position);
+    //resize_vertex(gl_Position);
 }

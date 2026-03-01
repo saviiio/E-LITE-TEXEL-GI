@@ -1,5 +1,5 @@
 #version 120
-/* MakeUp - LITE shaders 4.9 - dh_water.fsh
+/* MakeUp - E-LITE shaders 5 - dh_water.fsh
 Render: DH Water
 
 Javier Garduño - GNU Lesser General Public License v3.0

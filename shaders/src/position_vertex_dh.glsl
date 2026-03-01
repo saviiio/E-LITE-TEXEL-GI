@@ -1,4 +1,5 @@
 position = gbufferModelViewInverse * gl_ModelViewMatrix * gl_Vertex;
+sub_position = gl_ModelViewMatrix * gl_Vertex;
 
 if(dhMaterialId == DH_BLOCK_WATER) {  // Water
     position.y -= 0.125;

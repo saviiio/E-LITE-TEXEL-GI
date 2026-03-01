@@ -1,6 +1,5 @@
-/* MakeUp - LITE shaders 4.9 - ao.glsl
+/* MakeUp - E-LITE shaders 5 - ao.glsl
 Based on old Capt Tatsu's ambient occlusion functions.
-
 */
 
 float dbao(float dither) {
@@ -42,5 +41,40 @@ float dbao(float dither) {
     }
     ao /= AOSTEPS;
 
-    return sqrt((ao * clamp(AO_STRENGTH, 0.0, 1.0)) + (1.0 - clamp(AO_STRENGTH, 0.0, 1.0)));
+    return ((ao * clamp(AO_STRENGTH, 0.0, 1.3)) + (1.0 - clamp(AO_STRENGTH, 0.0, 1.3)));
 }
+
+#ifdef DISTANT_HORIZONS
+    float dh_dbao(float dither) {
+        float ao = 0.0;
+
+        float d_raw = texture2DLod(dhDepthTex0, texcoord.xy, 0.0).r;
+        if (d_raw >= 1.0) return 1.0;
+        
+        float d_lin = ld_dh(d_raw);
+
+        float inv_steps = 0.166666;
+        
+        vec2 scale = vec2(viewHeight / viewWidth, 1.0) * (1.0 / (d_lin * dhFarPlane * 0.5));
+        vec2 scale_factor = scale * inv_steps * AO_STRENGTH * 1.2;
+
+        for (int i = 0; i < 6; i++) {
+            float dither_x = (float(i) + dither);
+            float n = fract(dither_x * 1.6180339887) * 3.1415926535;
+            vec2 offset = vec2(cos(n), sin(n)) * dither_x * scale_factor;
+
+            float sd = ld_dh(texture2DLod(dhDepthTex0, texcoord.xy + offset, 0.0).r);
+            float diff = (d_lin - sd) * dhFarPlane;
+            ao += clamp(0.5 - diff, 0.0, 1.0) + clamp(0.25 * diff - 1.0, 0.0, 1.0);
+
+            sd = ld_dh(texture2DLod(dhDepthTex0, texcoord.xy - offset, 0.0).r);
+            diff = (d_lin - sd) * dhFarPlane;
+            ao += clamp(0.5 - diff, 0.0, 1.0) + clamp(0.25 * diff - 1.0, 0.0, 1.0);
+        }
+        
+        ao /= 6.0;
+        ao = clamp(ao, 0.0, 1.0);
+
+        return (ao * clamp(AO_STRENGTH, 0.0, 1.3)) + (1.0 - clamp(AO_STRENGTH, 0.0, 1.3));
+    }
+#endif
