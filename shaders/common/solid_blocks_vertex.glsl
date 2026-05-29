@@ -111,6 +111,10 @@ varying float visible_sky;
     varying float shadow_diffuse;
 #endif
 
+#if defined SHADOW_CASTING && !defined NETHER
+    varying vec3 gi_shadow_normal;
+#endif
+
 #if (MATERIAL_GLOSS > 0 && !defined NETHER) || MATERIAL_GLOSS > 1
     varying vec3 flat_normal;
     varying vec3 sub_position3;
@@ -175,6 +179,7 @@ void main() {
 
     #if defined SHADOW_CASTING && !defined NETHER
         #include "/src/shadow_src_vertex.glsl"
+        gi_shadow_normal = shadow_world_normal;
         
         #if SHADOW_LOCK > 0
             vNormal = shadow_world_normal;

@@ -6,6 +6,8 @@ uniform sampler2D tex;
 uniform sampler2D noisetex;
 varying vec3 worldPos;
 uniform vec3 cameraPosition;
+uniform vec3 shadowLightPosition;
+uniform float light_mix;
 uniform float frameTimeCounter;
 uniform float rainStrength;
 uniform float viewWidth;
@@ -17,6 +19,7 @@ varying vec2 texcoord;
 varying float is_noshadow;
 varying float visible_sky;
 varying float is_water;
+varying vec3 gi_shadow_world_normal;
 
 #if defined SHADOW_CASTING && SHADOW_LOCK > 0 && !defined NETHER
     varying vec3 vNormal;
@@ -81,6 +84,12 @@ void main() {
         block_color = texture2D(tex, texcoord);
     #endif
 
+    vec3 giNormal = normalize(gi_shadow_world_normal);
+    vec3 giLightDir = normalize(shadowLightPosition);
+    float giFacing = clamp(dot(giNormal, giLightDir), 0.0, 1.0);
+    float giDayNight = clamp(abs(light_mix * 2.0 - 1.0), 0.0, 1.0);
+    vec3 giRadiance = block_color.rgb * giFacing * GI_ENERGY_GAIN * mix(1.0, 0.55, rainStrength) * giDayNight;
+
     /* DRAWBUFFERS:0 */
-    gl_FragData[0] = block_color;
+    gl_FragData[0] = vec4(giRadiance, block_color.a);
 }
