@@ -20,6 +20,7 @@ varying vec2 texcoord;
 varying float is_noshadow;
 varying vec3 worldPos;
 varying float is_water;
+varying vec3 gi_shadow_world_normal;
 
 #if defined SHADOW_CASTING && SHADOW_LOCK > 0 && !defined NETHER
     varying vec3 vWorldPos;
@@ -46,6 +47,7 @@ void main() {
     vec3 normal = gl_NormalMatrix * gl_Normal;
     vec3 shadow_pos;
     float shadow_diffuse;
+    gi_shadow_world_normal = normalize(mat3(shadowModelViewInverse) * normal);
 
     #if defined SHADOW_CASTING && SHADOW_LOCK > 0 && !defined NETHER
         #include "/src/shadow_src_vertex.glsl"

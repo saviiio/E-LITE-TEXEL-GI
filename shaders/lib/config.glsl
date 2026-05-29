@@ -433,6 +433,23 @@ Javier Garduño - GNU Lesser General Public License v3.0
   #endif
 #endif
 
+
+// Indirect lighting / shadow-space texel GI
+#define GI_ENABLE 1 // [0 1] Iluminação indireta por texels no espaço de sombra
+#define GI_QUALITY 2 // [0 1 2 3] Qualidade da iluminação indireta
+#define GI_INDIRECT_BRIGHTNESS 2.50 // [0.00 1.00 1.50 2.00 2.50 3.00 3.50 4.00]
+#define GI_TRACE_DISTANCE 18.0 // [8.0 12.0 18.0 24.0 32.0]
+#define GI_TEXEL_GRID_SIZE 16.0 // [8.0 16.0 32.0]
+#define GI_STEP_SIZE 0.85 // [0.50 0.65 0.85 1.00 1.25]
+#define GI_REACH_BOOST 2.25 // [1.00 1.50 2.00 2.25 2.50 3.00]
+#define GI_RAY_COUNT 2 // [1 2 3 4]
+#define GI_MAX_STEPS 8 // [4 6 8 12 16]
+#define GI_FAST_LOCAL_ENABLE 1 // [0 1]
+#define GI_SECOND_BOUNCE_ENABLE 1 // [0 1]
+#define GI_LIT_STRENGTH 0.32 // [0.00 0.12 0.20 0.32 0.45 0.60]
+#define GI_SHADOW_STRENGTH 0.62 // [0.00 0.30 0.45 0.62 0.80 1.00]
+#define GI_ENERGY_GAIN 1.35 // [0.80 1.00 1.35 1.70 2.20]
+
 // Godrays
 #define GODRAY_STEPS 6 // [2 3 4 5 6 7]
 #define CHEAP_GODRAY_SAMPLES clamp((GODRAY_STEPS / 1.5), 2.0, 7.0)
