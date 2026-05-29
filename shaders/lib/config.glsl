@@ -434,6 +434,59 @@ Javier Garduño - GNU Lesser General Public License v3.0
 #endif
 
 
+
+// Iluminação indireta por texels em espaço de sombra
+#define WORLD_BRIGHTNESS 1.00 // [0.70 0.85 1.00 1.15 1.30] Brilho global
+#define DIRECT_LIGHT_STRENGTH 1.25 // [0.75 1.00 1.25 1.50 1.75 2.00] Força da iluminação direta do sol/lua
+#define SHADOW_FILTER_MODE 1 // [0 1] 0 dura/rápida, 1 PCF 2x2 via shadowmap
+#define SHADOW_MAP_BIAS 0.0015 // [0.0008 0.0010 0.0015 0.0020 0.0025 0.0030] Bias fixo tradicional do shadowmap
+#define SHADOW_PCF_RADIUS 0.75 // [0.50 0.75 1.00 1.50] Raio do filtro PCF em texels
+#define SHADOW_BIAS_FIXED SHADOW_MAP_BIAS // Compatibilidade interna: use SHADOW_MAP_BIAS
+#define SHADOW_RECEIVER_BIAS 0.0000 // Compatibilidade interna: raymarch removido
+#define SHADOW_NORMAL_OFFSET 0.025 // Offset normal do receptor para evitar auto-sombra apagando a luz direta
+#define SHADOW_STABLE_SNAP 1 // [0 1] Usa origem de sombra fixada ao grid do mundo, como os voxels
+#define SHADOW_STABLE_TEXEL_SNAP 1 // [0 1] Trava a amostragem no centro dos texels do shadowmap
+#define GI_ENABLE 1 // [1] Iluminação indireta por voxel
+#define GI_ALWAYS_FLICKER_ENABLE 1 // [0 1] Faz os raios da GI mudarem todo frame
+#define GI_FLICKER_STRENGTH 1.00 // [0.00 0.35 0.65 1.00 1.50 2.00] Força da variação temporal dos raios
+#define GI_QUALITY 3 // [0 1 2 3] 0 face-fill, 1 otimizado, 2 alto, 3 ultra
+#define GI_INDIRECT_BRIGHTNESS 5.25 // [0.00 1.50 2.50 3.50 4.20 5.00 5.50 7.00] Brilho da GI voxel
+#define GI_FACE_FILL_STRENGTH 0.00 // [0.00 0.08 0.12 0.18 0.25 0.35] Preenchimento barato por face
+#define GI_TRACE_DISTANCE 24.0 // [8.0 12.0 18.0 24.0 28.0 32.0] Distância de traçado da GI
+#define GI_TEXEL_GRID_SIZE 16.0 // [8.0 16.0 32.0] Voxels por eixo em cada face: 8.0 ≈ face de 4 pixels, 4.0 ≈ face de 8 pixels
+#define GI_STEP_SIZE 0.85 // [0.50 0.65 0.85 1.00 1.25] Tamanho do passo perto da superfície
+#define GI_REACH_BOOST 2.75 // [1.00 1.50 2.00 2.25 2.50 3.00] Estica a cauda do raio sem aumentar raios
+#define GI_REACH_START_STEPS 6.0 // [3.0 4.0 5.0 6.0 8.0 10.0] Passos densos antes do esticamento
+#define GI_DISTANCE_FALLOFF 0.040 // [0.030 0.045 0.060 0.080 0.100] Atenuação da GI distante
+#define GI_ENERGY_GAIN 1.35 // [0.80 1.00 1.35 1.70 2.20] Energia injetada no shadow pass
+#define GI_SURFACE_PUSH 0.08 // [0.02 0.04 0.06 0.08 0.10 0.12] Deslocamento da superfície para GI
+#define GI_RAY_COUNT 2 // [2 3 5 7 9] Raios por tentativa de GI
+#define GI_MAX_STEPS 8 // [8 12 16 20 24 32] Passos máximos por raio de GI
+#define GI_ATTEMPT_COUNT 1 // [1] Tentativas de GI por pixel
+#define GI_PROBE_EXPAND 0 // [0 1] Sondagem expandida de voxels próximos
+#define GI_FAST_LOCAL_ENABLE 1 // [0 1] Amostra local barata em faces bem iluminadas
+#define GI_SECOND_BOUNCE_ENABLE 1 // [1] Segundo rebote da GI
+#define GI_SECOND_BOUNCE_BRIGHTNESS 0.80 // [0.00 0.50 0.80 1.10 1.60] Brilho do segundo rebote
+#define GI_SMOOTHING_ENABLE 1 // [0 1] Interpolação da GI entre voxels vizinhos
+#define GI_SMOOTH_STRENGTH 1.00 // [0.00 0.25 0.45 0.65 0.85 1.00] Força da suavização da GI
+#define GI_SMOOTH_RADIUS 1.00 // [0.25 0.50 0.75 1.00 1.25 1.50 2.00] Raio da suavização da GI em voxels
+#define GI_SMOOTH_SAMPLES 2 // [0 2 4] Voxels usados pela interpolação da GI
+#define GI_CROSS_FACE_ENABLE 1 // [1] Permite GI entre faces de orientações diferentes
+#define GI_CROSS_FACE_STRENGTH 0.40 // [0.00 0.25 0.40 0.55 0.75 1.00] Força da GI cruzada entre faces
+#define GI_CROSS_FACE_RAYS 2 // [2] Raios diagonais extras para faces perpendiculares/opostas
+#define GI_LIT_RAY_COUNT 2 // [2] Raios usados quando a face já está bem iluminada
+#define GI_FAST_SMOOTHING 1 // [0 1] Suavização barata: não retraça toda a GI nos voxels vizinhos
+#define GI_FAST_LIT_ONLY 1 // [1] Faces bem iluminadas usam apenas a sonda local barata, sem GI raymarch completa
+#define GI_CROSS_FACE_SHADOW_ONLY 1 // [0 1] GI cruzada entre faces só traça em sombra/baixo ângulo
+#define GI_FAST_LOCAL_SAMPLES 4 // [2 4] Quantas sondas locais baratas amostrar
+#define GI_SHADOWCOLOR_FAST_SAMPLE 1 // [0 1] Evita segunda leitura de profundidade/cor quando a amostra do shadowcolor não bate
+#define GI_SUN_TRACE_ENABLE 0 // [1 0] 0 usa o shadow pass como prova de luz; 1 faz raymarch extra até o sol
+#define VOXEL_SUN_TRACE_MAX_STEPS 4 // [0 2 4 6 8] Passos do raymarch extra até o sol quando GI_SUN_TRACE_ENABLE = 1
+#define GI_FACE_SAMPLE_GUARD 1 // [1] Impede a GI de usar a cor de outra face do mesmo bloco
+#define GI_SHADOWCOLOR_DEPTH_TOLERANCE 0.0014 // [0.0008 0.0010 0.0014 0.0018 0.0024] Tolerância de profundidade para cor da GI
+#define GI_LIT_STRENGTH 0.55 // [0.00 0.12 0.20 0.30 0.45] GI em faces iluminadas
+#define GI_SHADOW_STRENGTH 0.55 // [0.00 0.30 0.45 0.55 0.70 0.90] GI em sombra
+
 // Indirect lighting / shadow-space texel GI
 #define GI_ENABLE 1 // [0 1] Iluminação indireta por texels no espaço de sombra
 #define GI_QUALITY 2 // [0 1 2 3] Qualidade da iluminação indireta
@@ -449,6 +502,7 @@ Javier Garduño - GNU Lesser General Public License v3.0
 #define GI_LIT_STRENGTH 0.32 // [0.00 0.12 0.20 0.32 0.45 0.60]
 #define GI_SHADOW_STRENGTH 0.62 // [0.00 0.30 0.45 0.62 0.80 1.00]
 #define GI_ENERGY_GAIN 1.35 // [0.80 1.00 1.35 1.70 2.20]
+
 
 // Godrays
 #define GODRAY_STEPS 6 // [2 3 4 5 6 7]

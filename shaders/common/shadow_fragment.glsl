@@ -7,7 +7,10 @@ uniform sampler2D noisetex;
 varying vec3 worldPos;
 uniform vec3 cameraPosition;
 uniform vec3 shadowLightPosition;
+
+
 uniform float light_mix;
+
 uniform float frameTimeCounter;
 uniform float rainStrength;
 uniform float viewWidth;
@@ -29,6 +32,8 @@ varying vec3 gi_shadow_world_normal;
 #include "/lib/caustics.glsl"
 #include "/lib/luma.glsl"
 #include "/lib/basic_utils.glsl"
+#include "/lib/indirect_common.glsl"
+#include "/lib/indirect_shadow_shared.glsl"
 
 #define FRAGMENT
 //#include "/lib/downscale.glsl"
@@ -84,6 +89,31 @@ void main() {
         block_color = texture2D(tex, texcoord);
     #endif
 
+
+    vec3 normal = safeNormalize(gi_shadow_world_normal);
+    vec3 lightDir = getWorldShadowLightDirection();
+    float facing = getSunFacingContribution(normal, lightDir);
+    float horizon = getShadowHorizonFactor(normal, lightDir);
+    float visibleToLight = facing * horizon;
+
+    vec3 injected = vec3(0.0);
+    float packedReflectorNormal = 0.0;
+
+    if (visibleToLight > EPSILON) {
+        vec3 albedo = block_color.rgb;
+        float rainDim = mix(1.0, 0.55, rainStrength);
+        injected = sanitizeColor(albedo * visibleToLight * GI_ENERGY_GAIN * rainDim);
+
+        if (maxComponent(injected) > GI_MIN_ENERGY) {
+            packedReflectorNormal = encodeCardinalNormalToScalar(normal);
+        } else {
+            injected = vec3(0.0);
+        }
+    }
+
+    /* DRAWBUFFERS:0 */
+    gl_FragData[0] = vec4(injected, packedReflectorNormal);
+
     vec3 giNormal = normalize(gi_shadow_world_normal);
     vec3 giLightDir = normalize(shadowLightPosition);
     float giFacing = clamp(dot(giNormal, giLightDir), 0.0, 1.0);
@@ -92,4 +122,5 @@ void main() {
 
     /* DRAWBUFFERS:0 */
     gl_FragData[0] = vec4(giRadiance, block_color.a);
+
 }

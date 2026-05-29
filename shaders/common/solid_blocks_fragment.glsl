@@ -128,7 +128,12 @@ varying float isGrass;
 #if defined SHADOW_CASTING && !defined NETHER
     varying vec3 shadow_pos;
     varying float shadow_diffuse;
+
+    varying vec3 gi_world_pos;
+    varying vec3 gi_world_normal;
+
     varying vec3 gi_shadow_normal;
+
 #endif
 
 #if (MATERIAL_GLOSS > 0 && !defined NETHER) || MATERIAL_GLOSS > 1
@@ -165,7 +170,11 @@ varying float isGrass;
 
 #if defined SHADOW_CASTING && !defined NETHER
     #include "/lib/shadow_frag.glsl"
+
+    #include "/lib/indirect_composite_shared.glsl"
+
     #include "/lib/e_lite_indirect.glsl"
+
 #endif
 
 #if MATERIAL_GLOSS > 0 && !defined NETHER
@@ -314,8 +323,14 @@ void main() {
         #endif
 
         #if defined SHADOW_CASTING && !defined NETHER && !defined GBUFFER_BEACONBEAM && !defined GBUFFER_ENTITY_GLOW
+
+            float giShadowMask = clamp(luma(shadow_c), 0.0, 1.0);
+            vec3 giIndirect = getShadowPenetratingIndirect(gi_world_pos, normalize(gi_world_normal), block_color.rgb, giShadowMask, clamp(directLight2, 0.0, 1.0));
+            real_light += giIndirect * (1.0 - nightVision * 0.35);
+
             vec3 indirect_light = giComputeIndirect(shadow_pos, normalize(gi_shadow_normal), block_color.rgb, shadow_c);
             real_light += indirect_light * (1.0 - nightVision * 0.35);
+
         #endif
 
         block_color.rgb *= mix(real_light, vec3(1.0), nightVision * 0.125);

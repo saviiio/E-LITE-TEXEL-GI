@@ -657,6 +657,23 @@ screen.GI_SCREEN=Indirect Lighting
 screen.GI_SCREEN.comment=Configures shadow-space texel indirect lighting.
 option.GI_ENABLE=§e▶§r Indirect lighting
 option.GI_QUALITY=Indirect lighting quality
+
+option.GI_INDIRECT_BRIGHTNESS=Indirect intensity
+option.GI_TRACE_DISTANCE=Indirect reach
+option.GI_TEXEL_GRID_SIZE=Texel grid
+option.GI_RAY_COUNT=Indirect rays
+option.GI_LIT_RAY_COUNT=Direct-lit rays
+option.GI_MAX_STEPS=Ray steps
+option.GI_REACH_BOOST=Ray reach boost
+option.GI_DISTANCE_FALLOFF=Distance falloff
+option.GI_FAST_LOCAL_ENABLE=Fast local sample
+option.GI_FAST_LIT_ONLY=Fast path in lit areas
+option.GI_CROSS_FACE_ENABLE=Cross-face exchange
+option.GI_SECOND_BOUNCE_ENABLE=Second bounce
+option.GI_LIT_STRENGTH=Direct-lit strength
+option.GI_SHADOW_STRENGTH=Shadow strength
+option.GI_ENERGY_GAIN=Injected energy
+
 option.GI_INDIRECT_BRIGHTNESS=Indirect lighting intensity
 option.GI_TRACE_DISTANCE=Indirect lighting reach
 option.GI_TEXEL_GRID_SIZE=Indirect texel grid
@@ -669,3 +686,4 @@ option.GI_SECOND_BOUNCE_ENABLE=Second bounce
 option.GI_LIT_STRENGTH=Strength in lit areas
 option.GI_SHADOW_STRENGTH=Strength in shadows
 option.GI_ENERGY_GAIN=Emitter texel energy
+
