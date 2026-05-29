@@ -434,6 +434,7 @@ Javier Garduño - GNU Lesser General Public License v3.0
 #endif
 
 
+
 // Iluminação indireta por texels em espaço de sombra
 #define WORLD_BRIGHTNESS 1.00 // [0.70 0.85 1.00 1.15 1.30] Brilho global
 #define DIRECT_LIGHT_STRENGTH 1.25 // [0.75 1.00 1.25 1.50 1.75 2.00] Força da iluminação direta do sol/lua
@@ -485,6 +486,23 @@ Javier Garduño - GNU Lesser General Public License v3.0
 #define GI_SHADOWCOLOR_DEPTH_TOLERANCE 0.0014 // [0.0008 0.0010 0.0014 0.0018 0.0024] Tolerância de profundidade para cor da GI
 #define GI_LIT_STRENGTH 0.55 // [0.00 0.12 0.20 0.30 0.45] GI em faces iluminadas
 #define GI_SHADOW_STRENGTH 0.55 // [0.00 0.30 0.45 0.55 0.70 0.90] GI em sombra
+
+// Indirect lighting / shadow-space texel GI
+#define GI_ENABLE 1 // [0 1] Iluminação indireta por texels no espaço de sombra
+#define GI_QUALITY 2 // [0 1 2 3] Qualidade da iluminação indireta
+#define GI_INDIRECT_BRIGHTNESS 2.50 // [0.00 1.00 1.50 2.00 2.50 3.00 3.50 4.00]
+#define GI_TRACE_DISTANCE 18.0 // [8.0 12.0 18.0 24.0 32.0]
+#define GI_TEXEL_GRID_SIZE 16.0 // [8.0 16.0 32.0]
+#define GI_STEP_SIZE 0.85 // [0.50 0.65 0.85 1.00 1.25]
+#define GI_REACH_BOOST 2.25 // [1.00 1.50 2.00 2.25 2.50 3.00]
+#define GI_RAY_COUNT 2 // [1 2 3 4]
+#define GI_MAX_STEPS 8 // [4 6 8 12 16]
+#define GI_FAST_LOCAL_ENABLE 1 // [0 1]
+#define GI_SECOND_BOUNCE_ENABLE 1 // [0 1]
+#define GI_LIT_STRENGTH 0.32 // [0.00 0.12 0.20 0.32 0.45 0.60]
+#define GI_SHADOW_STRENGTH 0.62 // [0.00 0.30 0.45 0.62 0.80 1.00]
+#define GI_ENERGY_GAIN 1.35 // [0.80 1.00 1.35 1.70 2.20]
+
 
 // Godrays
 #define GODRAY_STEPS 6 // [2 3 4 5 6 7]
