@@ -1,31 +1,77 @@
 #ifndef E_LITE_INDIRECT_COMMON_GLSL
 #define E_LITE_INDIRECT_COMMON_GLSL
 
+#ifndef E_LITE_UNIFORM_GBUFFER_MODEL_VIEW_INVERSE
 uniform mat4 gbufferModelViewInverse;
+#endif
+#ifndef E_LITE_UNIFORM_GBUFFER_PROJECTION_INVERSE
 uniform mat4 gbufferProjectionInverse;
+#endif
+#ifndef E_LITE_UNIFORM_GBUFFER_MODEL_VIEW
 uniform mat4 gbufferModelView;
+#endif
+#ifndef E_LITE_UNIFORM_GBUFFER_PROJECTION
 uniform mat4 gbufferProjection;
+#endif
+#ifndef E_LITE_UNIFORM_GBUFFER_PREVIOUS_MODEL_VIEW
 uniform mat4 gbufferPreviousModelView;
+#endif
+#ifndef E_LITE_UNIFORM_GBUFFER_PREVIOUS_PROJECTION
 uniform mat4 gbufferPreviousProjection;
+#endif
+#ifndef E_LITE_UNIFORM_SHADOW_MODEL_VIEW
 uniform mat4 shadowModelView;
+#endif
+#ifndef E_LITE_UNIFORM_SHADOW_PROJECTION
 uniform mat4 shadowProjection;
+#endif
+#ifndef E_LITE_UNIFORM_SHADOW_MODEL_VIEW_INVERSE
 uniform mat4 shadowModelViewInverse;
+#endif
+#ifndef E_LITE_UNIFORM_SHADOW_PROJECTION_INVERSE
 uniform mat4 shadowProjectionInverse;
+#endif
 
+#ifndef E_LITE_UNIFORM_CAMERA_POSITION
 uniform vec3 cameraPosition;
+#endif
+#ifndef E_LITE_UNIFORM_PREVIOUS_CAMERA_POSITION
 uniform vec3 previousCameraPosition;
+#endif
+#ifndef E_LITE_UNIFORM_SUN_POSITION
 uniform vec3 sunPosition;
+#endif
+#ifndef E_LITE_UNIFORM_MOON_POSITION
 uniform vec3 moonPosition;
+#endif
+#ifndef E_LITE_UNIFORM_SHADOW_LIGHT_POSITION
 uniform vec3 shadowLightPosition;
+#endif
+#ifndef E_LITE_UNIFORM_UP_POSITION
 uniform vec3 upPosition;
+#endif
 
+#ifndef E_LITE_UNIFORM_FRAME_COUNTER
 uniform int frameCounter;
+#endif
+#ifndef E_LITE_UNIFORM_FRAME_TIME_COUNTER
 uniform float frameTimeCounter;
+#endif
+#ifndef E_LITE_UNIFORM_RAIN_STRENGTH
 uniform float rainStrength;
+#endif
+#ifndef E_LITE_UNIFORM_WETNESS
 uniform float wetness;
+#endif
+#ifndef E_LITE_UNIFORM_ASPECT_RATIO
 uniform float aspectRatio;
+#endif
+#ifndef E_LITE_UNIFORM_VIEW_WIDTH
 uniform float viewWidth;
+#endif
+#ifndef E_LITE_UNIFORM_VIEW_HEIGHT
 uniform float viewHeight;
+#endif
 
 const float voxelDistance = 80.0; // [32.0 48.0 64.0 80.0 96.0 112.0 128.0 160.0] Distância de geração dos voxels ao redor da câmera
 
@@ -187,11 +233,14 @@ float hash11(float p) {
     return fract(p);
 }
 
+#ifndef E_LITE_HASH13_DEFINED
+#define E_LITE_HASH13_DEFINED
 float hash13(vec3 p3) {
     p3 = fract(p3 * 0.1031);
     p3 += dot(p3, p3.yzx + 33.33);
     return fract((p3.x + p3.y) * p3.z);
 }
+#endif
 
 vec2 hash23(vec3 p3) {
     float n = hash13(p3);
