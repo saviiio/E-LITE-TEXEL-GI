@@ -6,6 +6,7 @@ uniform sampler2D tex;
 uniform sampler2D noisetex;
 varying vec3 worldPos;
 uniform vec3 cameraPosition;
+uniform vec3 shadowLightPosition;
 uniform float frameTimeCounter;
 uniform float rainStrength;
 uniform float viewWidth;
@@ -17,6 +18,7 @@ varying vec2 texcoord;
 varying float is_noshadow;
 varying float visible_sky;
 varying float is_water;
+varying vec3 gi_shadow_world_normal;
 
 #if defined SHADOW_CASTING && SHADOW_LOCK > 0 && !defined NETHER
     varying vec3 vNormal;
@@ -26,6 +28,8 @@ varying float is_water;
 #include "/lib/caustics.glsl"
 #include "/lib/luma.glsl"
 #include "/lib/basic_utils.glsl"
+#include "/lib/indirect_common.glsl"
+#include "/lib/indirect_shadow_shared.glsl"
 
 #define FRAGMENT
 //#include "/lib/downscale.glsl"
@@ -81,6 +85,27 @@ void main() {
         block_color = texture2D(tex, texcoord);
     #endif
 
+    vec3 normal = safeNormalize(gi_shadow_world_normal);
+    vec3 lightDir = getWorldShadowLightDirection();
+    float facing = getSunFacingContribution(normal, lightDir);
+    float horizon = getShadowHorizonFactor(normal, lightDir);
+    float visibleToLight = facing * horizon;
+
+    vec3 injected = vec3(0.0);
+    float packedReflectorNormal = 0.0;
+
+    if (visibleToLight > EPSILON) {
+        vec3 albedo = block_color.rgb;
+        float rainDim = mix(1.0, 0.55, rainStrength);
+        injected = sanitizeColor(albedo * visibleToLight * GI_ENERGY_GAIN * rainDim);
+
+        if (maxComponent(injected) > GI_MIN_ENERGY) {
+            packedReflectorNormal = encodeCardinalNormalToScalar(normal);
+        } else {
+            injected = vec3(0.0);
+        }
+    }
+
     /* DRAWBUFFERS:0 */
-    gl_FragData[0] = block_color;
+    gl_FragData[0] = vec4(injected, packedReflectorNormal);
 }
