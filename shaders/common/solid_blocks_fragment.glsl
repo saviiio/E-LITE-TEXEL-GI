@@ -13,43 +13,58 @@
 /* Uniforms */
 
 uniform float viewWidth;
+#define E_LITE_UNIFORM_VIEW_WIDTH
 uniform float inv_aspect_ratio;
 uniform float viewHeight;
+#define E_LITE_UNIFORM_VIEW_HEIGHT
 uniform int frameCounter;
+#define E_LITE_UNIFORM_FRAME_COUNTER
 uniform float frameTime;
 uniform float far;
 uniform sampler2D tex;
 uniform int isEyeInWater;
 uniform float nightVision;
 uniform float rainStrength;
+#define E_LITE_UNIFORM_RAIN_STRENGTH
 uniform float wetness;
+#define E_LITE_UNIFORM_WETNESS
 uniform float light_mix;
 uniform float pixel_size_x;
 uniform float pixel_size_y;
 uniform sampler2D gaux4;
 uniform vec3 sunPosition;
+#define E_LITE_UNIFORM_SUN_POSITION
 uniform sampler2D depthtex0;
+#define E_LITE_UNIFORM_DEPTHTEX0
 uniform float near;
 uniform ivec2 eyeBrightnessSmooth;
 uniform vec4 lightningBoltPosition;
 uniform mat4 gbufferProjectionInverse;
+#define E_LITE_UNIFORM_GBUFFER_PROJECTION_INVERSE
 uniform mat4 gbufferProjection;
+#define E_LITE_UNIFORM_GBUFFER_PROJECTION
 
 #if MATERIAL_GLOSS > 1
     uniform sampler2D gaux1;
     uniform mat4 gbufferPreviousProjection;
+    #define E_LITE_UNIFORM_GBUFFER_PREVIOUS_PROJECTION
     uniform mat4 gbufferPreviousModelView;
+    #define E_LITE_UNIFORM_GBUFFER_PREVIOUS_MODEL_VIEW
     uniform mat4 gbufferProjectionMatrix;
 #endif
 
 #if defined GBUFFER_BLOCK || SHADOW_LOCK > 0 && defined SHADOW_CASTING
     uniform float frameTimeCounter;
+    #define E_LITE_UNIFORM_FRAME_TIME_COUNTER
 #endif
 
 #if defined GBUFFER_BLOCK || SHADOW_LOCK > 0 && defined SHADOW_CASTING || (defined MATERIAL_GLOSS && !defined NETHER) || ((MATERIAL_GLOSS > 0 && !defined NETHER) || MATERIAL_GLOSS > 1)
     uniform vec3 cameraPosition;
+    #define E_LITE_UNIFORM_CAMERA_POSITION
     uniform vec3 previousCameraPosition;
+    #define E_LITE_UNIFORM_PREVIOUS_CAMERA_POSITION
     uniform mat4 gbufferModelViewInverse;
+    #define E_LITE_UNIFORM_GBUFFER_MODEL_VIEW_INVERSE
 #endif
 
 #if defined DISTANT_HORIZONS
@@ -83,13 +98,18 @@ uniform float blindness;
 #if (MATERIAL_GLOSS > 0 && !defined NETHER) || MATERIAL_GLOSS > 1
     uniform int worldTime;
     uniform vec3 moonPosition;
+    #define E_LITE_UNIFORM_MOON_POSITION
     uniform mat4 gbufferModelView;
+    #define E_LITE_UNIFORM_GBUFFER_MODEL_VIEW
 #endif
 
 #if SHADOW_LOCK > 0 && defined SHADOW_CASTING
     uniform mat4 shadowModelView;
+    #define E_LITE_UNIFORM_SHADOW_MODEL_VIEW
     uniform mat4 shadowProjection;
+    #define E_LITE_UNIFORM_SHADOW_PROJECTION
     uniform vec3 shadowLightPosition;
+    #define E_LITE_UNIFORM_SHADOW_LIGHT_POSITION
 #endif
 
 /* Ins / Outs */

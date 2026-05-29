@@ -6,15 +6,21 @@ uniform sampler2D tex;
 uniform sampler2D noisetex;
 varying vec3 worldPos;
 uniform vec3 cameraPosition;
+#define E_LITE_UNIFORM_CAMERA_POSITION
 uniform vec3 shadowLightPosition;
+#define E_LITE_UNIFORM_SHADOW_LIGHT_POSITION
 
 
 uniform float light_mix;
 
 uniform float frameTimeCounter;
+#define E_LITE_UNIFORM_FRAME_TIME_COUNTER
 uniform float rainStrength;
+#define E_LITE_UNIFORM_RAIN_STRENGTH
 uniform float viewWidth;
+#define E_LITE_UNIFORM_VIEW_WIDTH
 uniform float viewHeight;
+#define E_LITE_UNIFORM_VIEW_HEIGHT
 
 /* Ins / Outs */
 

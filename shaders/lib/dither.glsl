@@ -42,11 +42,14 @@ float hash12(vec2 point) {
     return fract(state * state * 7142.0);
 }
 
+#ifndef E_LITE_HASH13_DEFINED
+#define E_LITE_HASH13_DEFINED
 float hash13(vec3 point) {
     point = fract(point * .1031);
     point += dot(point, point.zyx + 31.32);
     return fract((point.x + point.y) * point.z);
 }
+#endif
 
 vec2 hash22(vec2 point) {
 	  vec3 p3 = fract(vec3(point.xyx) * vec3(.1031, .1030, .0973));

@@ -10,7 +10,9 @@ uniform sampler2D colortex0;
 uniform sampler2D colortex1;
 uniform sampler2D colortex2;
 uniform sampler2D colortex3;
+#ifndef E_LITE_UNIFORM_DEPTHTEX0
 uniform sampler2D depthtex0;
+#endif
 
 float sampleSceneDepth(vec2 uv) {
     return texture2D(depthtex0, uv).r;
